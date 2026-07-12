@@ -11,6 +11,7 @@ services:
     volumes:
       - .:/usr/src/app
       - gems:/gems
+      - ${OBSIDIAN_VOLUME_PATH:?Set OBSIDIAN_VOLUME_PATH to the absolute host path of the Obsidian vault}:/usr/src/app/obsidian_vault:ro
 
 volumes:
   gems:

@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bash -c "(bundle check || bundle install) && ./bin/dev -b 0.0.0.0"
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+      - gems:/gems
+
+volumes:
+  gems:

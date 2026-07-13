@@ -8,6 +8,8 @@ default: &default
   adapter: sqlite3
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
+  extensions:
+    - <%= SqliteVec.loadable_path %>
 
 development:
   <<: *default

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+#
+# `embedding` is a vec0 float[1024] column: sqlite-vec accepts a JSON array of
+# floats on insert (in addition to a packed binary blob), so we generate one
+# per fixture here rather than hand-writing 1024 numbers.
+
+embedded:
+  note: embedded
+  embedding: <%= Array.new(1024) { 0.1 }.to_json.inspect %>
+
+pending_embedding:
+  note: pending_embedding
+  embedding: <%= Array.new(1024) { -0.1 }.to_json.inspect %>

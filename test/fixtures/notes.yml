@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# A note that has already been embedded and is up to date with the vault file.
+embedded:
+  path: projects/three-eyed-rag/architecture.md
+  title: Architecture Overview
+  last_updated_at: 2026-07-10 09:15:00
+  last_embeded_at: 2026-07-10 09:16:42
+  checksum: 3b1c5f6d8e0a2c4b9f7e1d3a5c8b0e2f4a6d9c1b3e5f7a9c0b2d4e6f8a1c3b5d
+  content: |
+    # Architecture Overview
+
+    This vault note documents the ingestion pipeline: watch, parse, chunk, embed.
+
+# A note that was recently edited in the vault but has not been re-embedded yet,
+# useful for exercising "pending embedding" logic.
+pending_embedding:
+  path: daily/2026-07-13.md
+  title: 2026-07-13
+  last_updated_at: 2026-07-13 08:02:11
+  last_embeded_at:
+  checksum: 9f0e1d2c3b4a5968778695a4b3c2d1e0f9e8d7c6b5a4938271605f4e3d2c1b0
+  content: |
+    ## Today
+
+    - Wire up the Obsidian vault volume mount
+    - Add column comments to the notes migration

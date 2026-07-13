@@ -1,6 +1,12 @@
 require "test_helper"
 
 class NoteTest < ActiveSupport::TestCase
+  test "relations" do
+    note = Note.new
+
+    assert_respond_to note, :note_embedding
+  end
+
   test "fixture note is valid" do
     assert notes(:embedded).valid?
   end

@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_14_110048) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_14_110423) do
 # Could not dump table "note_embeddings_vector_chunks00" because of following StandardError
 #   Unknown type '' for column 'rowid'
 
+
+  create_table "note_tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "note_id", null: false
+    t.integer "tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["note_id"], name: "index_note_tags_on_note_id"
+    t.index ["tag_id"], name: "index_note_tags_on_tag_id"
+  end
 
   create_table "notes", force: :cascade do |t|
     t.string "checksum"
@@ -32,6 +41,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_14_110048) do
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_tags_on_name", unique: true
   end
+
+  add_foreign_key "note_tags", "notes"
+  add_foreign_key "note_tags", "tags"
 
   # Virtual tables defined in this database.
   # Note that virtual tables may not work with other database engines. Be careful if changing database.

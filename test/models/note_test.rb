@@ -5,6 +5,7 @@ class NoteTest < ActiveSupport::TestCase
     note = Note.new
 
     assert_respond_to note, :note_embedding
+    assert_respond_to note, :note_tags
   end
 
   test "fixture note is valid" do

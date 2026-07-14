@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+embedded_ruby:
+  note: embedded
+  tag: ruby
+
+pending_embedding_rails:
+  note: pending_embedding
+  tag: rails

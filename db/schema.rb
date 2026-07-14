@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_13_110056) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_14_110048) do
 # Could not dump table "note_embeddings_vector_chunks00" because of following StandardError
 #   Unknown type '' for column 'rowid'
 
@@ -24,6 +24,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_13_110056) do
     t.string "path", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
   # Virtual tables defined in this database.

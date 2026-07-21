@@ -8,3 +8,46 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+:root {
+  --sidebar-width: 240px;
+  --sidebar-bg: #14121c;
+  --sidebar-border: #2a2438;
+}
+
+body {
+  margin: 0;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.sidebar-logo-image {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+}
+
+.app-content {
+  flex: 1;
+  padding: 24px;
+}

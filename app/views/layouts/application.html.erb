@@ -15,7 +15,6 @@
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
@@ -24,6 +23,16 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="app-layout">
+      <nav class="sidebar">
+        <div class="sidebar-logo">
+          <%= image_tag "logo.png", alt: "Three Eyed Rag", class: "sidebar-logo-image" %>
+        </div>
+      </nav>
+
+      <main class="app-content">
+        <%= yield %>
+      </main>
+    </div>
   </body>
 </html>

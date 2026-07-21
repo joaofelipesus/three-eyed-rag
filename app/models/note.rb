@@ -7,4 +7,12 @@ class Note < ApplicationRecord
   has_many :note_sections
 
   validates :title, :path, presence: true
+
+  before_save :generate_checksum, if: :content_changed?
+
+  private
+
+  def generate_checksum
+    self.checksum = Digest::SHA256.hexdigest(content.to_s)
+  end
 end

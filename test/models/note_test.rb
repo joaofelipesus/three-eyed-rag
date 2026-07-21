@@ -80,7 +80,7 @@ class NoteTest < ActiveSupport::TestCase
     assert_equal "# Title\n\nBody.", note.note_sections.sole.content
   end
 
-  test "generate_embedding replaces any previously generated sections" do
+  test "generate_embedding drops sections that are no longer present in the content" do
     note = notes(:pending_embedding)
     note.define_singleton_method(:fetch_embedding) { |_text| Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1) }
 
@@ -91,5 +91,24 @@ class NoteTest < ActiveSupport::TestCase
     note.update!(content: "# Only heading\n\nBody.\n\n## Another\n\nMore.")
     note.generate_embedding
     assert_equal 2, note.note_sections.count
+  end
+
+  test "generate_embedding reuses sections whose content is unchanged instead of re-embedding them" do
+    note = notes(:pending_embedding)
+    embed_calls = []
+    note.define_singleton_method(:fetch_embedding) do |text|
+      embed_calls << text
+      Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1)
+    end
+
+    note.update!(content: "# Only heading\n\nBody.")
+    note.generate_embedding
+    unchanged_section = note.note_sections.sole
+
+    note.update!(content: "# Only heading\n\nBody.\n\n## Another\n\nMore.")
+    note.generate_embedding
+
+    assert_equal 1, embed_calls.count(unchanged_section.content)
+    assert_equal unchanged_section.id, note.note_sections.find_by(content: unchanged_section.content).id
   end
 end

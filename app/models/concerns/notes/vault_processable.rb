@@ -28,8 +28,6 @@ module Notes
           end
 
           # TODO: link related notes once a Note-to-Note relation model exists
-
-          # TODO fix embedding and continue
           # begin
             note.generate_embedding
           # rescue StandardError => e

@@ -22,14 +22,19 @@ module Notes
     IGNORED_SECTION_TITLES_PATTERN = /\A(?:related notes|tags)\b/i
 
     def generate_embedding
-      note_sections.destroy_all
+      retained_section_ids = split_into_sections(content).map do |section_content|
+        existing_section = note_sections.find_by(checksum: Digest::SHA256.hexdigest(section_content))
+        next existing_section.id if existing_section
 
-      split_into_sections(content).each do |section_content|
         section = note_sections.create!(content: section_content)
         embedding_vector = fetch_embedding(section_content)
 
         (section.note_section_embedding || section.build_note_section_embedding).update!(embedding: embedding_vector)
+
+        section.id
       end
+
+      note_sections.where.not(id: retained_section_ids).destroy_all
 
       update!(last_embeded_at: Time.current)
     end

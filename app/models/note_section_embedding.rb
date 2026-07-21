@@ -1,9 +1,9 @@
-class NoteEmbedding < ApplicationRecord
+class NoteSectionEmbedding < ApplicationRecord
   DIMENSIONS = 2560
 
-  # use the same id as the related note id because this model doesn't use a a actual table, it uses a vec0 virtual
-  # table. So to match the relation it preserves the same id as the related fk value
-  self.primary_key = "note_id"
+  # use the same id as the related note_section id because this model doesn't use a a actual table, it uses a vec0
+  # virtual table. So to match the relation it preserves the same id as the related fk value
+  self.primary_key = "note_section_id"
 
   # vec0 virtual tables implicitly expose "distance" and "k" pseudo-columns used
   # only for KNN query syntax (`WHERE embedding MATCH ? AND k = ?`); they aren't
@@ -15,7 +15,7 @@ class NoteEmbedding < ApplicationRecord
   # it will be make manual casting operations befoce instantiate and before parse objects.
   attribute :embedding, VectorType.new(dimensions: DIMENSIONS)
 
-  belongs_to :note
+  belongs_to :note_section
 
   validates :embedding, presence: true
   validate :embedding_has_correct_dimensions

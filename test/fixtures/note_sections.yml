@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+first:
+  note: embedded
+  content: MyText
+  follow_note: second
+
+second:
+  note: embedded
+  content: MyText
+  previous_note: first

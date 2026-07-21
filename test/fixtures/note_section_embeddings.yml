@@ -4,10 +4,10 @@
 # floats on insert (in addition to a packed binary blob), so we generate one
 # per fixture here rather than hand-writing 2560 numbers.
 
-embedded:
-  note: embedded
+first:
+  note_section: first
   embedding: <%= Array.new(2560) { 0.1 }.to_json.inspect %>
 
-pending_embedding:
-  note: pending_embedding
+second:
+  note_section: second
   embedding: <%= Array.new(2560) { -0.1 }.to_json.inspect %>

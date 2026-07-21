@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_20_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_21_110105) do
 # Could not dump table "note_embeddings_vector_chunks00" because of following StandardError
 #   Unknown type '' for column 'rowid'
 
@@ -20,6 +20,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_150000) do
 
 
   create_table "note_sections", force: :cascade do |t|
+    t.string "checksum"
     t.text "content"
     t.datetime "created_at", null: false
     t.integer "follow_note_id"

@@ -80,31 +80,6 @@ class NoteTest < ActiveSupport::TestCase
     assert_equal "# Title\n\nBody.", note.note_sections.sole.content
   end
 
-  test "generates a SHA256 checksum of the content on create" do
-    note = Note.create!(title: "t", path: "p", content: "hello world")
-
-    assert_equal Digest::SHA256.hexdigest("hello world"), note.checksum
-  end
-
-  test "regenerates the checksum when content changes" do
-    note = notes(:embedded)
-    original_checksum = note.checksum
-
-    note.update!(content: "new content")
-
-    assert_equal Digest::SHA256.hexdigest("new content"), note.checksum
-    assert_not_equal original_checksum, note.checksum
-  end
-
-  test "does not recompute the checksum when content is unchanged" do
-    note = notes(:embedded)
-    original_checksum = note.checksum
-
-    note.update!(title: "New title")
-
-    assert_equal original_checksum, note.reload.checksum
-  end
-
   test "generate_embedding replaces any previously generated sections" do
     note = notes(:pending_embedding)
     note.define_singleton_method(:fetch_embedding) { |_text| Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1) }

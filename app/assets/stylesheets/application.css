@@ -56,13 +56,13 @@ body {
 
 .sidebar-footer {
   margin-top: auto;
-  padding: 16px;
+  padding: var(--space-4);
   border-top: 1px solid var(--sidebar-border);
 }
 
 .sidebar-reload-button {
   width: 100%;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   background-color: transparent;
   color: #cbb8f5;
   border: 1px solid #6b4fa0;
@@ -77,5 +77,5 @@ body {
 
 .app-content {
   flex: 1;
-  padding: 24px;
+  padding: var(--space-6);
 }

@@ -1,4 +1,5 @@
 require "test_helper"
+require "tmpdir"
 
 class NoteTest < ActiveSupport::TestCase
   test "relations" do
@@ -110,5 +111,21 @@ class NoteTest < ActiveSupport::TestCase
 
     assert_equal 1, embed_calls.count(unchanged_section.content)
     assert_equal unchanged_section.id, note.note_sections.find_by(content: unchanged_section.content).id
+  end
+
+  test "vault_documents_count counts markdown files, excluding excalidraw files" do
+    Dir.mktmpdir do |dir|
+      vault_dir = File.join(dir, "obsidian_vault")
+      FileUtils.mkdir_p(File.join(vault_dir, "nested"))
+
+      File.write(File.join(vault_dir, "note1.md"), "# Note 1")
+      File.write(File.join(vault_dir, "nested", "note2.md"), "# Note 2")
+      File.write(File.join(vault_dir, "diagram.excalidraw.md"), "{}")
+      File.write(File.join(vault_dir, "note3.txt"), "not markdown")
+
+      Rails.stubs(:root).returns(Pathname.new(dir))
+
+      assert_equal 2, Note.vault_documents_count
+    end
   end
 end

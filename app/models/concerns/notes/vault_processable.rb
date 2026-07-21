@@ -6,8 +6,7 @@ module Notes
 
     class_methods do
       def process_vault
-        files = Dir.glob(Rails.root.join("obsidian_vault", "**", "*.md"))
-          .reject { |file| file.include?(".excalidraw") }
+        files = vault_files
 
         files.each_with_index do |file, index|
           content = File.read(file)
@@ -36,6 +35,17 @@ module Notes
 
           puts "\r#{index + 1} of #{files.size} processed"
         end
+      end
+
+      def vault_documents_count
+        vault_files.size
+      end
+
+      private
+
+      def vault_files
+        Dir.glob(Rails.root.join("obsidian_vault", "**", "*.md"))
+          .reject { |file| file.include?(".excalidraw") }
       end
     end
   end

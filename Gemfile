@@ -54,6 +54,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # A mocking and stubbing library for Ruby
+  gem 'mocha'
 end
 
 group :development do

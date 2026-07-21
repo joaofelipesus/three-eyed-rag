@@ -7,5 +7,7 @@ class Note < ApplicationRecord
   has_many :note_tags
   has_many :note_sections
 
+  enum :processing_status, { pending: "pending", processed: "processed", failed: "failed" }
+
   validates :title, :path, presence: true
 end

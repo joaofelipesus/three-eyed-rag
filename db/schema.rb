@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_21_110105) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_21_114431) do
 # Could not dump table "note_embeddings_vector_chunks00" because of following StandardError
 #   Unknown type '' for column 'rowid'
 
@@ -48,6 +48,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_21_110105) do
     t.datetime "last_embeded_at"
     t.datetime "last_updated_at"
     t.string "path", null: false
+    t.string "processing_status", default: "pending", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
   end

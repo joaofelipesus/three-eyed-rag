@@ -30,11 +30,11 @@ module Notes
           # TODO: link related notes once a Note-to-Note relation model exists
 
           # TODO fix embedding and continue
-          begin
+          # begin
             note.generate_embedding
-          rescue StandardError => e
-            debugger
-          end
+          # rescue StandardError => e
+
+          # end
 
           puts "\r#{index + 1} of #{files.size} processed"
         end

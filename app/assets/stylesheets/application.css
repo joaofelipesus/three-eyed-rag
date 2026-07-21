@@ -13,6 +13,13 @@
   --sidebar-width: 240px;
   --sidebar-bg: #14121c;
   --sidebar-border: #2a2438;
+
+  --base: 4px;
+  --space-1: calc(var(--base) * 1); /* 4px */
+  --space-2: calc(var(--base) * 2); /* 8px */
+  --space-3: calc(var(--base) * 3); /* 12px */
+  --space-4: calc(var(--base) * 4); /* 16px */
+  --space-6: calc(var(--base) * 6); /* 24px */
 }
 
 body {
@@ -37,7 +44,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: var(--space-4);
   border-bottom: 1px solid var(--sidebar-border);
 }
 
@@ -45,6 +52,27 @@ body {
   width: 100%;
   max-width: 160px;
   height: auto;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid var(--sidebar-border);
+}
+
+.sidebar-reload-button {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: transparent;
+  color: #cbb8f5;
+  border: 1px solid #6b4fa0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.sidebar-reload-button:hover {
+  background-color: #2a2438;
 }
 
 .app-content {

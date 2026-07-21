@@ -28,6 +28,10 @@
         <div class="sidebar-logo">
           <%= image_tag "logo.png", alt: "Three Eyed Rag", class: "sidebar-logo-image" %>
         </div>
+
+        <div class="sidebar-footer">
+          <%= button_to "Reload Vault", reload_valut_notes_path, class: "sidebar-reload-button" %>
+        </div>
       </nav>
 
       <main class="app-content">

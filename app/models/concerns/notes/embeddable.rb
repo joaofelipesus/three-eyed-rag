@@ -28,8 +28,6 @@ module Notes
         section = note_sections.create!(content: section_content)
         embedding_vector = fetch_embedding(section_content)
 
-        debugger if embedding_vector.nil?
-
         (section.note_section_embedding || section.build_note_section_embedding).update!(embedding: embedding_vector)
       end
 

@@ -9,6 +9,7 @@ module Notes
         update_all(processing_status: :pending)
 
         files = vault_files
+        total = files.size
 
         files.each_with_index do |file, index|
           content = File.read(file)
@@ -37,16 +38,12 @@ module Notes
             note.failed!
           end
 
-          ActionCable.server.broadcast("vault_processing", {
-            note_id: note.id,
-            title: note.title,
-            status: note.processing_status,
-            processed: index + 1,
-            total: files.size
-          })
+          broadcast_vault_progress(index + 1, total)
 
-          puts "\r#{index + 1} of #{files.size} processed"
+          puts "\r#{index + 1} of #{total} processed"
         end
+
+        broadcast_vault_finished
       end
 
       def vault_documents_count
@@ -58,6 +55,23 @@ module Notes
       def vault_files
         Dir.glob(Rails.root.join("obsidian_vault", "**", "*.md"))
           .reject { |file| file.include?(".excalidraw") }
+      end
+
+      def broadcast_vault_progress(processed, total)
+        Turbo::StreamsChannel.broadcast_replace_to(
+          "vault_processing",
+          target: "vault_reload_widget",
+          partial: "notes/vault_progress",
+          locals: { processed: processed, total: total }
+        )
+      end
+
+      def broadcast_vault_finished
+        Turbo::StreamsChannel.broadcast_replace_to(
+          "vault_processing",
+          target: "vault_reload_widget",
+          partial: "notes/vault_reload_widget"
+        )
       end
     end
   end

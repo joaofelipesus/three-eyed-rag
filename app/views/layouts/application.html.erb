@@ -30,7 +30,8 @@
         </div>
 
         <div class="sidebar-footer">
-          <%= button_to "Reload Vault", reload_valut_notes_path, class: "sidebar-reload-button" %>
+          <%= turbo_stream_from "vault_processing" %>
+          <%= render "notes/vault_reload_widget" %>
         </div>
       </nav>
 

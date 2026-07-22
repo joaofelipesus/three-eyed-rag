@@ -16,26 +16,32 @@ module Notes
 
           title = File.basename(file, ".md")
 
-          note = create!(
+          note = find_or_initialize_by(path: file)
+          content_unchanged = note.persisted? && note.checksum == Digest::SHA256.hexdigest(content)
+
+          note.update!(
             title: title,
             content: content,
-            path: file,
             last_updated_at: File.mtime(file)
           )
 
-          begin
-            tags_line = content[TAGS_LINE_PATTERN, 1]
-            tags_line&.scan(/#(\S+)/)&.flatten&.each do |tag_name|
-              tag = Tag.find_or_create_by!(name: tag_name)
-              note.note_tags.create!(tag: tag)
-            end
-
-            # TODO: link related notes once a Note-to-Note relation model exists
-            note.generate_embedding
-
+          if content_unchanged
             note.processed!
-          rescue StandardError
-            note.failed!
+          else
+            begin
+              tags_line = content[TAGS_LINE_PATTERN, 1]
+              tags_line&.scan(/#(\S+)/)&.flatten&.each do |tag_name|
+                tag = Tag.find_or_create_by!(name: tag_name)
+                note.note_tags.find_or_create_by!(tag: tag)
+              end
+
+              # TODO: link related notes once a Note-to-Note relation model exists
+              note.generate_embedding
+
+              note.processed!
+            rescue StandardError
+              note.failed!
+            end
           end
 
           broadcast_vault_progress(index + 1, total)

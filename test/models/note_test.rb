@@ -128,4 +128,42 @@ class NoteTest < ActiveSupport::TestCase
       assert_equal 2, Note.vault_documents_count
     end
   end
+
+  test "process_vault skips retagging and re-embedding a note whose checksum is unchanged" do
+    Dir.mktmpdir do |dir|
+      vault_dir = File.join(dir, "obsidian_vault")
+      FileUtils.mkdir_p(vault_dir)
+
+      content = <<~MARKDOWN
+        # Title
+
+        Body.
+
+        ### Tags: #unchanged
+      MARKDOWN
+      File.write(File.join(vault_dir, "note.md"), content)
+
+      Rails.stubs(:root).returns(Pathname.new(dir))
+      Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+
+      Note.process_vault
+
+      note = Note.find_by(path: File.join(vault_dir, "note.md"))
+      assert note.processed?
+      assert_equal Digest::SHA256.hexdigest(content), note.checksum
+      section_ids = note.note_sections.pluck(:id)
+      tag_count = NoteTag.count
+
+      Note.any_instance.expects(:generate_embedding).never
+
+      assert_no_difference [ "Note.count", "NoteTag.count" ] do
+        Note.process_vault
+      end
+
+      note.reload
+      assert note.processed?
+      assert_equal section_ids, note.note_sections.pluck(:id)
+      assert_equal tag_count, NoteTag.count
+    end
+  end
 end

@@ -6,6 +6,8 @@ module Notes
 
     class_methods do
       def process_vault
+        update_all(processing_status: :pending)
+
         files = vault_files
 
         files.each_with_index do |file, index|
@@ -20,18 +22,28 @@ module Notes
             last_updated_at: File.mtime(file)
           )
 
-          tags_line = content[TAGS_LINE_PATTERN, 1]
-          tags_line&.scan(/#(\S+)/)&.flatten&.each do |tag_name|
-            tag = Tag.find_or_create_by!(name: tag_name)
-            note.note_tags.create!(tag: tag)
+          begin
+            tags_line = content[TAGS_LINE_PATTERN, 1]
+            tags_line&.scan(/#(\S+)/)&.flatten&.each do |tag_name|
+              tag = Tag.find_or_create_by!(name: tag_name)
+              note.note_tags.create!(tag: tag)
+            end
+
+            # TODO: link related notes once a Note-to-Note relation model exists
+            note.generate_embedding
+
+            note.processed!
+          rescue StandardError
+            note.failed!
           end
 
-          # TODO: link related notes once a Note-to-Note relation model exists
-          # begin
-            note.generate_embedding
-          # rescue StandardError => e
-
-          # end
+          ActionCable.server.broadcast("vault_processing", {
+            note_id: note.id,
+            title: note.title,
+            status: note.processing_status,
+            processed: index + 1,
+            total: files.size
+          })
 
           puts "\r#{index + 1} of #{files.size} processed"
         end

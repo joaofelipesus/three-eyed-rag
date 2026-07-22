@@ -166,4 +166,29 @@ class NoteTest < ActiveSupport::TestCase
       assert_equal tag_count, NoteTag.count
     end
   end
+
+  test "chat sends the message and matching note sections to the chat model and returns its answer" do
+    Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+
+    requested_body = nil
+    fake_response = stub(body: { message: { content: "Formatted answer.\n\nSources: #{notes(:embedded).path}" } }.to_json)
+
+    expectation = Net::HTTP.any_instance.stubs(:post)
+    expectation.with do |_uri, body, _headers|
+      requested_body = JSON.parse(body)
+      true
+    end
+    expectation.returns(fake_response)
+
+    answer = Note.chat("What is the architecture?")
+
+    assert_equal "Formatted answer.\n\nSources: #{notes(:embedded).path}", answer
+    assert_equal "qwen3:8b", requested_body["model"]
+
+    system_message, user_message = requested_body["messages"].map { |message| message["content"] }
+    assert_includes system_message, "Evaluate which of the note sections are actually related"
+    assert_includes user_message, "What is the architecture?"
+    assert_includes user_message, "Source: #{notes(:embedded).path}"
+    assert_includes user_message, note_sections(:first).content
+  end
 end

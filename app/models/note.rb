@@ -1,6 +1,7 @@
 class Note < ApplicationRecord
   include Notes::VaultProcessable
   include Notes::Embeddable
+  include Notes::Chatable
   include Checksummable
 
   has_one :note_embedding

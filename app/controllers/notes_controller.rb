@@ -14,4 +14,19 @@ class NotesController < ApplicationController
       format.html { head :ok }
     end
   end
+
+  def chat
+    query = params[:query]
+    answer = Note.chat(query)
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.append(
+          "chat_messages",
+          partial: "notes/chat_message",
+          locals: { query: query, answer: answer }
+        )
+      end
+    end
+  end
 end

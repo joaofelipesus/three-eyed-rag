@@ -13,6 +13,11 @@
   --sidebar-width: 240px;
   --sidebar-bg: #14121c;
   --sidebar-border: #2a2438;
+  --content-bg: #1a1625;
+  --text-primary: #e6def9;
+  --text-muted: #cbb8f5;
+  --accent: #6b4fa0;
+  --accent-hover: #5a4189;
 
   --base: 4px;
   --space-1: calc(var(--base) * 1); /* 4px */
@@ -24,6 +29,8 @@
 
 body {
   margin: 0;
+  background-color: var(--content-bg);
+  color: var(--text-primary);
 }
 
 .app-layout {
@@ -60,6 +67,13 @@ body {
   border-top: 1px solid var(--sidebar-border);
 }
 
+.sidebar-stats {
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
 .sidebar-reload-button {
   width: 100%;
   padding: var(--space-2) var(--space-3);
@@ -89,4 +103,172 @@ body {
 .app-content {
   flex: 1;
   padding: var(--space-6);
+  background-color: var(--content-bg);
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - (var(--space-6) * 2));
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.chat-message-question {
+  align-self: flex-end;
+  max-width: 70%;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--accent);
+  color: #fff;
+  border-radius: 12px;
+}
+
+.chat-message-answer {
+  align-self: flex-start;
+  max-width: 85%;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--sidebar-border);
+  color: var(--text-primary);
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.chat-message-answer > *:first-child {
+  margin-top: 0;
+}
+
+.chat-message-answer > *:last-child {
+  margin-bottom: 0;
+}
+
+.chat-message-answer h1,
+.chat-message-answer h2,
+.chat-message-answer h3,
+.chat-message-answer h4 {
+  margin: var(--space-4) 0 var(--space-2);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.chat-message-answer p {
+  margin: 0 0 var(--space-3);
+}
+
+.chat-message-answer strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.chat-message-answer ol,
+.chat-message-answer ul {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-4);
+}
+
+.chat-message-answer li {
+  margin-bottom: var(--space-1);
+}
+
+.chat-message-answer li:last-child {
+  margin-bottom: 0;
+}
+
+.chat-message-answer li > ol,
+.chat-message-answer li > ul {
+  margin-top: var(--space-1);
+}
+
+.chat-message-answer blockquote {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--accent);
+  color: var(--text-muted);
+}
+
+.chat-message-answer hr {
+  margin: var(--space-4) 0;
+  border: none;
+  border-top: 1px solid var(--sidebar-bg);
+}
+
+.chat-message-answer code {
+  background-color: var(--sidebar-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85em;
+}
+
+.chat-message-answer pre {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--sidebar-bg);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.chat-message-answer pre code {
+  padding: 0;
+  background-color: transparent;
+}
+
+.chat-message-answer a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.chat-form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.chat-input {
+  box-sizing: border-box;
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--sidebar-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.chat-input::placeholder {
+  color: var(--text-muted);
+}
+
+.chat-submit {
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.chat-submit:hover {
+  background-color: var(--accent-hover);
+}
+
+.chat-submit:disabled {
+  background-color: var(--sidebar-border);
+  color: var(--text-muted);
+  cursor: default;
 }

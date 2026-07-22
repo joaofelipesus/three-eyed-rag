@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   resources :notes, only: [] do
     post :reload_valut, on: :collection
+    post :chat, on: :collection
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

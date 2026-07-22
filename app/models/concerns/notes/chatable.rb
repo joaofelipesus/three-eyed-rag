@@ -13,9 +13,16 @@ module Notes
       You will receive the user's message and a list of note sections retrieved for it.
       Evaluate which of the note sections are actually related to the message and base your
       answer only on those, ignoring any that aren't relevant.
-      Format the answer clearly, then list the source note paths it is based on. There can be
-      more than one source. If none of the note sections are relevant, say so instead of
-      making up an answer.
+
+      You must always format the answer as Markdown:
+      - Use headings or bold text to highlight key terms, not wall-of-text paragraphs.
+      - Use bullet or numbered lists whenever you present multiple items or steps.
+      - Use fenced code blocks for code, commands, or file paths quoted verbatim.
+      - Keep paragraphs short and scannable.
+
+      End the answer with a "**Sources:**" section listing, as a bullet list, the path of every
+      note used to build the answer. There can be more than one source. If none of the note
+      sections are relevant, say so instead of making up an answer, and omit the sources section.
     PROMPT
 
     class_methods do

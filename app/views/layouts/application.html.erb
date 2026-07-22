@@ -30,6 +30,7 @@
         </div>
 
         <div class="sidebar-footer">
+          <%= render "notes/vault_stats" %>
           <%= turbo_stream_from "vault_processing" %>
           <%= render "notes/vault_reload_widget" %>
         </div>

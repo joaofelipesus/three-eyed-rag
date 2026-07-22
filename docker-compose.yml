@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: bash -c "(bundle check || bundle install) && ./bin/dev -b 0.0.0.0"
+    command: bash -c "(bundle check || bundle install) && (bin/jobs &) && ./bin/dev -b 0.0.0.0"
     stdin_open: true
     tty: true
     ports:

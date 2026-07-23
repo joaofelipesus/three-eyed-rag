@@ -236,6 +236,8 @@ body {
   color: #f0c9a0;
   font-family: var(--font-mono);
   font-size: 0.85em;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .chat-message-answer pre {

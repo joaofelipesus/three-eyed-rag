@@ -8,6 +8,7 @@ class NoteSectionTest < ActiveSupport::TestCase
     assert_respond_to note_section, :previous_note
     assert_respond_to note_section, :follow_note
     assert_respond_to note_section, :note_section_embedding
+    assert_respond_to note_section, :images
   end
 
   test "fixture chain links previous and follow sections" do

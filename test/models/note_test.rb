@@ -167,12 +167,13 @@ class NoteTest < ActiveSupport::TestCase
     end
   end
 
-  test "chat streams the model's response chunks to the given sse object and returns the full answer" do
+  test "chat streams the model's response chunks to the given sse object and returns the answer with a deterministic sources section" do
     Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
 
     requested_body = nil
     stream_lines = [
       { message: { content: "Formatted answer." }, done: false }.to_json + "\n",
+      { message: { content: "\nSOURCES: 1, 2" }, done: false }.to_json + "\n",
       { message: { content: "" }, done: true }.to_json + "\n"
     ]
 
@@ -192,7 +193,8 @@ class NoteTest < ActiveSupport::TestCase
 
     answer = Note.chat("What is the architecture?", sse)
 
-    assert_equal "Formatted answer.", answer
+    # both fixture sections belong to the same note, so the sources list dedupes to one path
+    assert_equal "Formatted answer.\n\n**Sources:**\n\n- `#{notes(:embedded).path}`", answer
     assert_equal "qwen3:8b", requested_body["model"]
     assert requested_body["stream"]
 
@@ -202,6 +204,49 @@ class NoteTest < ActiveSupport::TestCase
     assert_includes user_message, "Source: #{notes(:embedded).path}"
     assert_includes user_message, note_sections(:first).content
 
-    assert_equal [ { payload: { content: "Formatted answer." }, event: "chunk" } ], written
+    assert_equal [
+      { payload: { content: "Formatted answer." }, event: "chunk" },
+      { payload: { content: "\nSOURCES: 1, 2" }, event: "chunk" }
+    ], written
+  end
+
+  test "chat falls back to listing every retrieved section when the model omits the sources directive" do
+    Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+
+    stream_lines = [
+      { message: { content: "Formatted answer." }, done: false }.to_json + "\n",
+      { message: { content: "" }, done: true }.to_json + "\n"
+    ]
+
+    fake_response = stub("response")
+    fake_response.stubs(:read_body).multiple_yields(*stream_lines.map { |line| [ line ] })
+    Net::HTTP.any_instance.stubs(:request).yields(fake_response)
+
+    sse = Object.new
+    sse.define_singleton_method(:write) { |payload, event: nil| nil }
+
+    answer = Note.chat("What is the architecture?", sse)
+
+    assert_equal "Formatted answer.\n\n**Sources:**\n\n- `#{notes(:embedded).path}`", answer
+  end
+
+  test "chat omits the sources section when the model reports none of the sections were relevant" do
+    Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+
+    stream_lines = [
+      { message: { content: "Sorry, I couldn't find anything relevant.\nSOURCES: none" }, done: false }.to_json + "\n",
+      { message: { content: "" }, done: true }.to_json + "\n"
+    ]
+
+    fake_response = stub("response")
+    fake_response.stubs(:read_body).multiple_yields(*stream_lines.map { |line| [ line ] })
+    Net::HTTP.any_instance.stubs(:request).yields(fake_response)
+
+    sse = Object.new
+    sse.define_singleton_method(:write) { |payload, event: nil| nil }
+
+    answer = Note.chat("What is the architecture?", sse)
+
+    assert_equal "Sorry, I couldn't find anything relevant.", answer
   end
 end

@@ -26,11 +26,11 @@ module Notes
     PROMPT
 
     class_methods do
-      def chat(question)
+      def chat(question, sse)
         embedding = new.send(:fetch_embedding, question)
         note_sections = matching_note_sections(embedding)
 
-        request_chat_completion(question, note_sections)
+        request_chat_completion(question, note_sections, sse)
       end
 
       private
@@ -46,27 +46,52 @@ module Notes
         NoteSection.where(id: note_section_ids).includes(:note)
       end
 
-      def request_chat_completion(question, note_sections)
+      # streams the model's response token by token, writing each chunk to the given SSE
+      # object as it arrives instead of waiting for the full answer; returns the full answer
+      # once the model reports it's done, so the caller can still do something with it (e.g.
+      # render it as Markdown for a final, formatted event).
+      def request_chat_completion(question, note_sections, sse)
         uri = URI("#{Notes::Embeddable::OLLAMA_HOST}/api/chat")
 
         http = Net::HTTP.new(uri.host, uri.port)
         http.open_timeout = REQUEST_TIMEOUT
         http.read_timeout = REQUEST_TIMEOUT
 
-        response = http.post(
-          uri,
-          {
-            model: CHAT_MODEL,
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: chat_prompt(question, note_sections) }
-            ],
-            stream: false
-          }.to_json,
-          "Content-Type" => "application/json"
-        )
+        request = Net::HTTP::Post.new(uri, "Content-Type" => "application/json")
+        request.body = {
+          model: CHAT_MODEL,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: chat_prompt(question, note_sections) }
+          ],
+          stream: true
+        }.to_json
 
-        JSON.parse(response.body).dig("message", "content")
+        answer = +""
+        buffer = +""
+
+        http.request(request) do |response|
+          response.read_body do |chunk|
+            buffer << chunk
+
+            while (newline_index = buffer.index("\n"))
+              line = buffer.slice!(0..newline_index).strip
+              next if line.empty?
+
+              payload = JSON.parse(line)
+              content = payload.dig("message", "content")
+
+              if content.present?
+                answer << content
+                sse.write({ content: content }, event: "chunk")
+              end
+
+              return answer if payload["done"]
+            end
+          end
+        end
+
+        answer
       end
 
       def chat_prompt(question, note_sections)

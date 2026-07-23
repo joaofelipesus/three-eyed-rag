@@ -1,4 +1,6 @@
 class NotesController < ApplicationController
+  include ActionController::Live
+
   def reload_valut
     total = Note.vault_documents_count
     ProcessVaultJob.perform_later
@@ -16,17 +18,17 @@ class NotesController < ApplicationController
   end
 
   def chat
-    query = params[:query]
-    answer = Note.chat(query)
+    response.headers["Content-Type"] = "text/event-stream"
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Accel-Buffering"] = "no"
 
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.append(
-          "chat_messages",
-          partial: "notes/chat_message",
-          locals: { query: query, answer: answer }
-        )
-      end
-    end
+    sse = ActionController::Live::SSE.new(response.stream)
+
+    answer = Note.chat(params[:query], sse)
+    sse.write({ html: view_context.markdown(answer) }, event: "done")
+  rescue IOError
+    # client disconnected before the stream finished
+  ensure
+    sse.close
   end
 end

@@ -11,9 +11,8 @@ module Notes
     SYSTEM_PROMPT = <<~PROMPT
       You are a helpful assistant answering questions using the user's personal notes.
       You will receive the user's message and a list of note sections retrieved for it, each
-      labeled with a number like [1], [2]. Evaluate which of the note sections are actually
-      related to the message and base your answer only on those, ignoring any that aren't
-      relevant.
+      labeled with a number like [1], [2]. Evaluate which of the note sections are actually related
+      to the message and base your answer only on those, ignoring any that aren't relevant.
 
       You must always format the answer as Markdown, following these rules exactly so it
       renders correctly:

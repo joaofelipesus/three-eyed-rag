@@ -58,6 +58,35 @@ class NoteTest < ActiveSupport::TestCase
     assert note.reload.last_embeded_at.present?
   end
 
+  test "generate_embedding attaches images referenced with Obsidian's embed syntax" do
+    Dir.mktmpdir do |dir|
+      vault_dir = File.join(dir, "obsidian_vault")
+      FileUtils.mkdir_p(File.join(vault_dir, "attachments"))
+      File.write(File.join(vault_dir, "attachments", "Screenshot 2026-07-08 at 11.06.19.png"), "fake image data")
+      File.write(File.join(vault_dir, "attachments", "diagram.pdf"), "not an image")
+
+      Rails.stubs(:root).returns(Pathname.new(dir))
+
+      note = notes(:pending_embedding)
+      note.define_singleton_method(:fetch_embedding) { |_text| Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1) }
+      note.update!(content: <<~MARKDOWN)
+        # Title
+
+        See the screenshot below.
+
+        ![[Screenshot 2026-07-08 at 11.06.19.png]]
+
+        Not an image: ![[diagram.pdf]]
+      MARKDOWN
+
+      note.generate_embedding
+
+      section = note.note_sections.sole
+      assert_equal 1, section.images.count
+      assert_equal "Screenshot 2026-07-08 at 11.06.19.png", section.images.first.filename.to_s
+    end
+  end
+
   test "generate_embedding ignores related notes and tags sections" do
     note = notes(:pending_embedding)
     note.update!(content: <<~MARKDOWN)
@@ -228,6 +257,64 @@ class NoteTest < ActiveSupport::TestCase
     answer = Note.chat("What is the architecture?", sse)
 
     assert_equal "Formatted answer.\n\n**Sources:**\n\n- `#{notes(:embedded).path}`", answer
+  end
+
+  test "chat renders images the vision model judges relevant, and excludes the ones it doesn't" do
+    note_sections(:first).images.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/screenshot.png")),
+      filename: "relevant.png",
+      content_type: "image/png"
+    )
+    note_sections(:second).images.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/unrelated.png")),
+      filename: "irrelevant.png",
+      content_type: "image/png"
+    )
+
+    Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+
+    stream_lines = [
+      { message: { content: "Formatted answer.\nSOURCES: 1, 2" }, done: false }.to_json + "\n",
+      { message: { content: "" }, done: true }.to_json + "\n"
+    ]
+    fake_stream_response = stub("stream_response")
+    fake_stream_response.stubs(:read_body).multiple_yields(*stream_lines.map { |line| [ line ] })
+
+    relevant_image_base64 = Base64.strict_encode64(File.binread(Rails.root.join("test/fixtures/files/screenshot.png")))
+
+    Net::HTTP.any_instance.stubs(:request)
+      .with { |request| JSON.parse(request.body)["model"] == "qwen3:8b" }
+      .yields(fake_stream_response)
+
+    Net::HTTP.any_instance.stubs(:request)
+      .with { |request| JSON.parse(request.body).dig("messages", 0, "images", 0) == relevant_image_base64 }
+      .returns(stub(body: { message: { content: "YES" } }.to_json))
+
+    Net::HTTP.any_instance.stubs(:request)
+      .with do |request|
+        body = JSON.parse(request.body)
+        body["model"] == "qwen2.5vl:7b" && body.dig("messages", 0, "images", 0) != relevant_image_base64
+      end
+      .returns(stub(body: { message: { content: "NO" } }.to_json))
+
+    sse = Object.new
+    sse.define_singleton_method(:write) { |payload, event: nil| nil }
+
+    answer = Note.chat("What is the architecture?", sse)
+
+    image_url = Rails.application.routes.url_helpers.rails_blob_path(
+      note_sections(:first).images.first, only_path: true
+    )
+
+    assert_equal <<~ANSWER.strip, answer
+      Formatted answer.
+
+      ![relevant.png](#{image_url})
+
+      **Sources:**
+
+      - `#{notes(:embedded).path}`
+    ANSWER
   end
 
   test "chat omits the sources section when the model reports none of the sections were relevant" do

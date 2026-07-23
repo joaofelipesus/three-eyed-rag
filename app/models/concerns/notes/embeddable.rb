@@ -21,12 +21,17 @@ module Notes
     # so they're dropped instead of becoming their own note section
     IGNORED_SECTION_TITLES_PATTERN = /\A(?:related notes|tags)\b/i
 
+    # matches Obsidian's embed syntax for images, e.g. "![[Screenshot 2026-07-08 at 11.06.19.png]]"
+    IMAGE_EMBED_PATTERN = /!\[\[([^\[\]]+\.(?:jpe?g|png|tif))\]\]/i
+
     def generate_embedding
       retained_section_ids = split_into_sections(content).map do |section_content|
         existing_section = note_sections.find_by(checksum: Digest::SHA256.hexdigest(section_content))
         next existing_section.id if existing_section
 
         section = note_sections.create!(content: section_content)
+        attach_images(section, section_content)
+
         embedding_vector = fetch_embedding(section_content)
 
         (section.note_section_embedding || section.build_note_section_embedding).update!(embedding: embedding_vector)
@@ -40,6 +45,19 @@ module Notes
     end
 
     private
+
+    def attach_images(section, section_content)
+      section_content.scan(IMAGE_EMBED_PATTERN).flatten.each do |filename|
+        path = vault_asset_path(filename)
+        next unless path
+
+        section.images.attach(io: File.open(path), filename: File.basename(path))
+      end
+    end
+
+    def vault_asset_path(filename)
+      Dir.glob(Rails.root.join("obsidian_vault", "**", filename)).first
+    end
 
     def split_into_sections(text)
       sections = []

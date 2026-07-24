@@ -1,5 +1,5 @@
 class ConversationMessage < ApplicationRecord
-  # touches conversation whenever a new ConversationMessage is created, this keeps the conversation in evidence.
+  # updates conversation's updated_at timestamp on any change to keep it in evidence
   belongs_to :conversation, touch: true
   has_many_attached :images
 

@@ -14,4 +14,18 @@ class ConversationTest < ActiveSupport::TestCase
     assert_not conversation.valid?
     assert_equal ["has already been taken"], conversation.errors[:title]
   end
+
+  test "start! creates a conversation titled with the current timestamp" do
+    travel_to Time.zone.local(2026, 7, 24, 11, 5, 32) do
+      conversation = Conversation.start!
+
+      assert_equal "2026-07-24 11:05:32.000000", conversation.title
+    end
+  end
+
+  test "ordered lists conversations most recently updated first" do
+    conversations(:architecture_walkthrough).touch
+
+    assert_equal conversations(:architecture_walkthrough), Conversation.ordered.first
+  end
 end

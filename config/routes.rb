@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount MissionControl::Jobs::Engine, at: "/jobs"
+
   resources :notes, only: [] do
     post :reload_valut, on: :collection
     post :chat, on: :collection

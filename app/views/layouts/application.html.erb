@@ -26,8 +26,12 @@
     <div class="app-layout">
       <nav class="sidebar">
         <div class="sidebar-logo">
-          <%= image_tag "logo.png", alt: "Three Eyed Rag", class: "sidebar-logo-image" %>
+          <%= link_to root_path do %>
+            <%= image_tag "logo.png", alt: "Three Eyed Rag", class: "sidebar-logo-image" %>
+          <% end %>
         </div>
+
+        <%= render partial: "conversations/sidebar", locals: { conversations: sidebar_conversations } %>
 
         <div class="sidebar-footer">
           <%= render "notes/vault_stats" %>

@@ -1,6 +1,4 @@
 class NotesController < ApplicationController
-  include ActionController::Live
-
   def reload_valut
     total = Note.vault_documents_count
     ProcessVaultJob.perform_later
@@ -15,20 +13,5 @@ class NotesController < ApplicationController
       end
       format.html { head :ok }
     end
-  end
-
-  def chat
-    response.headers["Content-Type"] = "text/event-stream"
-    response.headers["Cache-Control"] = "no-cache"
-    response.headers["X-Accel-Buffering"] = "no"
-
-    sse = ActionController::Live::SSE.new(response.stream)
-
-    answer = Note.chat(params[:query], sse)
-    sse.write({ html: view_context.markdown(answer) }, event: "done")
-  rescue IOError
-    # client disconnected before the stream finished
-  ensure
-    sse.close
   end
 end

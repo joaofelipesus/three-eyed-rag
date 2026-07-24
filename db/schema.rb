@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_24_105953) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_24_110532) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -37,6 +37,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_105953) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "conversation_messages", force: :cascade do |t|
+    t.text "content", null: false
+    t.integer "conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.string "created_by", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id"], name: "index_conversation_messages_on_conversation_id"
   end
 
   create_table "conversations", force: :cascade do |t|
@@ -97,6 +106,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_105953) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "conversation_messages", "conversations"
   add_foreign_key "note_sections", "note_sections", column: "follow_note_id"
   add_foreign_key "note_sections", "note_sections", column: "previous_note_id"
   add_foreign_key "note_sections", "notes"

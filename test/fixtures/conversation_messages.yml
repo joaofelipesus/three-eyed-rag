@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+architecture_question:
+  conversation: architecture_walkthrough
+  created_by: user
+  content: How does the ingestion pipeline work?
+
+architecture_answer:
+  conversation: architecture_walkthrough
+  created_by: system
+  content: The pipeline watches the vault, parses notes, chunks them, and embeds each section.

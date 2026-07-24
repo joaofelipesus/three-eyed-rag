@@ -1,0 +1,21 @@
+<%# locals: (conversation:, messages:) %>
+<%# It renders the messages from a conversation and the form to make a new chat %>
+
+<div class="chat-container" data-controller="chat" data-chat-conversation-id-value="<%= conversation&.id %>">
+  <div id="chat_messages" class="chat-messages" data-chat-target="messages">
+    <% messages.each_slice(2) do |question, answer| %>
+      <div class="chat-message">
+        <p class="chat-message-question"><%= question.content %></p>
+        <% if answer %>
+          <div class="chat-message-answer"><%= markdown(answer.content) %></div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <%= form_with url: conversation_messages_path, method: :post, class: "chat-form",
+        data: { chat_target: "form", action: "submit->chat#send" } do |form| %>
+    <%= form.text_field :content, placeholder: "Ask something about your notes...", class: "chat-input", autocomplete: "off", required: true, minlength: 3, autofocus: true, data: { chat_target: "input" } %>
+    <%= form.submit "Send", class: "chat-submit", data: { chat_target: "submit" } %>
+  <% end %>
+</div>

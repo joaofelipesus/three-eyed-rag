@@ -1,9 +1,8 @@
-<div class="chat-container" data-controller="chat">
-  <div id="chat_messages" class="chat-messages" data-chat-target="messages"></div>
+<%# used in the home when there is no conversation selected %>
 
-  <%= form_with url: chat_notes_path, method: :post, class: "chat-form",
-        data: { chat_target: "form", action: "submit->chat#send" } do |form| %>
-    <%= form.text_field :query, placeholder: "Ask something about your notes...", class: "chat-input", autocomplete: "off", required: true, minlength: 3, autofocus: true, data: { chat_target: "input" } %>
-    <%= form.submit "Send", class: "chat-submit", data: { chat_target: "submit" } %>
-  <% end %>
-</div>
+<%=
+  render(
+    partial: "conversations/chat",
+    locals: { conversation: nil, messages: [] }
+  )
+%>

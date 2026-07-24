@@ -1,0 +1,8 @@
+<%# a chat for a specific conversation %>
+
+<%=
+  render(
+    partial: "conversations/chat",
+    locals: { conversation: @conversation, messages: @conversation_messages }
+  )
+%>

@@ -1,0 +1,35 @@
+<%# locals: (conversation:) %>
+<div
+  class="chat-title"
+  id="conversation_title"
+  data-controller="editable-title"
+  data-editable-title-open-value="<%= conversation.errors[:title].present? %>"
+>
+  <span class="chat-title-label">Conversation</span>
+
+  <div class="chat-title-display" data-editable-title-target="display">
+    <span class="chat-title-name" data-action="dblclick->editable-title#edit"><%= conversation.title %></span>
+
+    <button
+      type="button"
+      class="chat-title-edit-button"
+      data-action="click->editable-title#edit"
+      aria-label="Rename conversation"
+      title="Rename conversation"
+    >
+      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 3 14.172V17h2.828l8.38-8.379-2.83-2.828Z" />
+      </svg>
+    </button>
+  </div>
+
+  <%= form_with model: conversation, class: "chat-title-form", data: { editable_title_target: "form" } do |form| %>
+    <%= form.text_field :title, class: "chat-title-input", data: {
+          editable_title_target: "input",
+          action: "keydown.esc->editable-title#cancel blur->editable-title#cancel"
+        } %>
+    <% if conversation.errors[:title].present? %>
+      <p class="chat-title-error"><%= conversation.errors[:title].first %></p>
+    <% end %>
+  <% end %>
+</div>

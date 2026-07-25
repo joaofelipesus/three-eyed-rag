@@ -28,4 +28,25 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".chat-message-question", count: 0
   end
+
+  test "update renames the conversation and streams the title and sidebar entry" do
+    conversation = conversations(:architecture_walkthrough)
+
+    patch conversation_url(conversation), params: { conversation: { title: "Renamed conversation" } }
+
+    assert_response :success
+    assert_equal "Renamed conversation", conversation.reload.title
+    assert_select "turbo-stream[action=replace][target=conversation_title]"
+    assert_select "turbo-stream[action=replace][target=conversation_#{conversation.id}]"
+  end
+
+  test "update rejects a blank title and re-renders the form with an error" do
+    conversation = conversations(:architecture_walkthrough)
+
+    patch conversation_url(conversation), params: { conversation: { title: "" } }
+
+    assert_response :unprocessable_entity
+    assert_equal "Architecture Overview walkthrough", conversation.reload.title
+    assert_select "turbo-stream[action=replace][target=conversation_title]"
+  end
 end

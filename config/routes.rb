@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     post :reload_valut, on: :collection
   end
 
-  resources :conversations, only: [ :index, :show ]
+  resources :conversations, only: [ :index, :show, :update ]
   resources :conversation_messages, only: [ :create ]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

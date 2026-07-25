@@ -4,10 +4,7 @@
 <div class="chat-container" data-controller="chat" data-chat-conversation-id-value="<%= conversation&.id %>">
   <div class="chat-messages-area">
     <% if conversation %>
-      <div class="chat-title" id="conversation_title">
-        <span class="chat-title-label">Conversation</span>
-        <span class="chat-title-name"><%= conversation.title %></span>
-      </div>
+      <%= render "conversations/title", conversation: conversation %>
     <% end %>
 
     <div id="chat_messages" class="chat-messages" data-chat-target="messages">

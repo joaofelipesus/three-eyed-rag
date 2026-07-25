@@ -122,6 +122,7 @@ export default class extends Controller {
     if (!sidebarList) return
 
     const item = document.createElement("li")
+    item.id = `conversation_${conversation.id}`
     const link = document.createElement("a")
     link.href = conversation.url
     link.textContent = conversation.title

@@ -4,9 +4,7 @@
   <h2 class="sidebar-heading">Conversations</h2>
 
   <ul class="sidebar-conversations-list" id="sidebar_conversations_list">
-    <% conversations.each do |conversation| %>
-      <li><%= link_to conversation.title, conversation_path(conversation), class: "sidebar-conversation-link" %></li>
-    <% end %>
+    <%= render partial: "conversations/sidebar_conversation", collection: conversations, as: :conversation %>
   </ul>
 
   <%= link_to "See all conversations", conversations_path, class: "sidebar-conversations-all" %>

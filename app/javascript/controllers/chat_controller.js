@@ -4,6 +4,11 @@ export default class extends Controller {
   static targets = ["input", "submit", "messages", "form"]
   static values = { conversationId: String }
 
+  connect() {
+    // wait for the layout so the browser has a scroll height to animate towards
+    requestAnimationFrame(() => this._scrollToBottom("smooth"))
+  }
+
   async send(event) {
     event.preventDefault()
 
@@ -40,9 +45,14 @@ export default class extends Controller {
 
     message.append(question, answer)
     this.messagesTarget.append(message)
-    this.messagesTarget.scrollTop = this.messagesTarget.scrollHeight
+    this._scrollToBottom()
 
     return answer
+  }
+
+  // keep the last message visible
+  _scrollToBottom(behavior = "auto") {
+    this.messagesTarget.scrollTo({ top: this.messagesTarget.scrollHeight, behavior })
   }
 
   // handle streaming answer from the backend
@@ -75,7 +85,7 @@ export default class extends Controller {
       while ((boundary = buffer.indexOf("\n\n")) !== -1) {
         this._processEvent(buffer.slice(0, boundary), answerElement)
         buffer = buffer.slice(boundary + 2)
-        this.messagesTarget.scrollTop = this.messagesTarget.scrollHeight
+        this._scrollToBottom()
       }
     }
   }

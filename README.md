@@ -6,7 +6,7 @@ So this app uses RAG to make searches on my documents. The main concern I had is
 
 It's still in its initial version but it's presenting promising results.
 
-[View Demo](docs/demo.mov)
+[View Demo](app/docs/demo.mov)
 
 To install it on your own machine, clone this repo and run `./install.sh`, which will prompt you for the path to your Obsidian vault and your Ollama host, then build the production Docker image ready to run with `docker compose --env-file .env.production -f docker-compose.production.yml up -d`.
 
@@ -18,7 +18,7 @@ The app is also a PWA, so you can "install" it from your browser to get an app-l
 
 Ruby on Rails was chosen for this app because it's fast to code, it supports SSE responses natively, and the framework is suitable for practicing Hotwire. To keep it simple in the first version, SQLite is used as the database, offering a simpler approach compared to using a Postgres database.
 
-![Architecture Diagram](docs/architecture.png)
+![Architecture Diagram](app/docs/architecture.png)
 
 ## Getting Started
 

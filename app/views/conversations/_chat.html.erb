@@ -2,15 +2,24 @@
 <%# It renders the messages from a conversation and the form to make a new chat %>
 
 <div class="chat-container" data-controller="chat" data-chat-conversation-id-value="<%= conversation&.id %>">
-  <div id="chat_messages" class="chat-messages" data-chat-target="messages">
-    <% messages.each_slice(2) do |question, answer| %>
-      <div class="chat-message">
-        <p class="chat-message-question"><%= question.content %></p>
-        <% if answer %>
-          <div class="chat-message-answer"><%= markdown(answer.content) %></div>
-        <% end %>
+  <div class="chat-messages-area">
+    <% if conversation %>
+      <div class="chat-title" id="conversation_title">
+        <span class="chat-title-label">Conversation</span>
+        <span class="chat-title-name"><%= conversation.title %></span>
       </div>
     <% end %>
+
+    <div id="chat_messages" class="chat-messages" data-chat-target="messages">
+      <% messages.each_slice(2) do |question, answer| %>
+        <div class="chat-message">
+          <p class="chat-message-question"><%= question.content %></p>
+          <% if answer %>
+            <div class="chat-message-answer"><%= markdown(answer.content) %></div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <%= form_with url: conversation_messages_path, method: :post, class: "chat-form",

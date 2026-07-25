@@ -2,34 +2,38 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["input", "submit", "messages", "form"]
+  static values = { conversationId: String }
 
   async send(event) {
     event.preventDefault()
 
-    const query = this.inputTarget.value
-    if (query.trim().length < 3) return
+    // check min content size to make a request
+    const content = this.inputTarget.value
+    if (content.trim().length < 3) return
 
+    // change content while submitting
     this.submitTarget.disabled = true
     this.submitTarget.value = "Sending..."
     this.inputTarget.value = ""
 
-    const answerElement = this.appendMessage(query)
+    const answerElement = this._appendMessage(content)
 
     try {
-      await this.streamAnswer(query, answerElement)
+      await this._streamAnswer(content, answerElement)
     } finally {
       this.submitTarget.disabled = false
       this.submitTarget.value = "Send"
     }
   }
 
-  appendMessage(query) {
+  // function that create a new message in the chat
+  _appendMessage(content) {
     const message = document.createElement("div")
     message.classList.add("chat-message")
 
     const question = document.createElement("p")
     question.classList.add("chat-message-question")
-    question.textContent = query
+    question.textContent = content
 
     const answer = document.createElement("div")
     answer.classList.add("chat-message-answer")
@@ -41,7 +45,11 @@ export default class extends Controller {
     return answer
   }
 
-  async streamAnswer(query, answerElement) {
+  // handle streaming answer from the backend
+  async _streamAnswer(content, answerElement) {
+    const body = new URLSearchParams({ content }) // format params into a valid body format
+    if (this.conversationIdValue) body.set("conversation_id", this.conversationIdValue)
+
     const response = await fetch(this.formTarget.action, {
       method: "POST",
       headers: {
@@ -49,9 +57,10 @@ export default class extends Controller {
         Accept: "text/event-stream",
         "Content-Type": "application/x-www-form-urlencoded"
       },
-      body: new URLSearchParams({ query })
+      body
     })
 
+    // handle streaming content
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ""
@@ -64,14 +73,15 @@ export default class extends Controller {
 
       let boundary
       while ((boundary = buffer.indexOf("\n\n")) !== -1) {
-        this.processEvent(buffer.slice(0, boundary), answerElement)
+        this._processEvent(buffer.slice(0, boundary), answerElement)
         buffer = buffer.slice(boundary + 2)
         this.messagesTarget.scrollTop = this.messagesTarget.scrollHeight
       }
     }
   }
 
-  processEvent(rawEvent, answerElement) {
+  // process each event from the streaming
+  _processEvent(rawEvent, answerElement) {
     let eventName = "chunk"
     let data = null
 
@@ -85,8 +95,30 @@ export default class extends Controller {
 
     if (eventName === "done") {
       answerElement.innerHTML = payload.html
+      if (payload.conversation) {
+        this._startConversation(payload.conversation)
+      }
     } else if (payload.content) {
       answerElement.textContent += payload.content
     }
+  }
+
+  // create a new conversation in the sidebar
+  _startConversation(conversation) {
+    this.conversationIdValue = conversation.id
+    window.history.replaceState({}, "", conversation.url)
+
+    const sidebarList = document.getElementById("sidebar_conversations_list")
+    if (!sidebarList) return
+
+    const item = document.createElement("li")
+    const link = document.createElement("a")
+    link.href = conversation.url
+    link.textContent = conversation.title
+    link.classList.add("sidebar-conversation-link")
+    item.append(link)
+
+    sidebarList.prepend(item)
+    while (sidebarList.children.length > 5) sidebarList.lastElementChild.remove()
   }
 }

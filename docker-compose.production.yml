@@ -1,0 +1,21 @@
+name: three-eyed-rag-production
+
+services:
+  app:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:?Set RAILS_MASTER_KEY in .env.production (see config/master.key)}
+      SOLID_QUEUE_IN_PUMA: "true"
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
+    ports:
+      - "8080:80"
+    volumes:
+      - storage:/rails/storage
+      - ${OBSIDIAN_VOLUME_PATH:?Set OBSIDIAN_VOLUME_PATH to the absolute host path of the Obsidian vault}:/rails/obsidian_vault:ro
+
+volumes:
+  storage:

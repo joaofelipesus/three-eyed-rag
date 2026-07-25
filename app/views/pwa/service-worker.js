@@ -1,3 +1,7 @@
+self.addEventListener("fetch", (event) => {
+  event.respondWith(fetch(event.request))
+})
+
 // Add a service worker for processing Web Push notifications:
 //
 // self.addEventListener("push", async (event) => {

@@ -18,7 +18,8 @@ The app is also a PWA, so you can "install" it from your browser to get an app-l
 
 Ruby on Rails was chosen for this app because it's fast to code, it supports SSE responses natively, and the framework is suitable for practicing Hotwire. To keep it simple in the first version, SQLite is used as the database, offering a simpler approach compared to using a Postgres database.
 
-![Architecture Diagram](docs/architecture.png)
+![Architecture Diagram]([https://github.com/joaofelipesus/three-eyed-rag/blob/main/app/docs/architecture.png)
+
 
 ## Getting Started
 

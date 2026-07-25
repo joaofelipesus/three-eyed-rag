@@ -6,7 +6,7 @@ So this app uses RAG to make searches on my documents. The main concern I had is
 
 It's still in its initial version but it's presenting promising results.
 
-[View Demo](app/docs/demo.mov)
+[Home](app/docs/home.png)
 
 To install it on your own machine, clone this repo and run `./install.sh`, which will prompt you for the path to your Obsidian vault and your Ollama host, then build the production Docker image ready to run with `docker compose --env-file .env.production -f docker-compose.production.yml up -d`.
 

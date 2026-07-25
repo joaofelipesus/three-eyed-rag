@@ -4,8 +4,12 @@ architecture_question:
   conversation: architecture_walkthrough
   created_by: user
   content: How does the ingestion pipeline work?
+  created_at: 2026-07-10 09:20:00
+  updated_at: 2026-07-10 09:20:00
 
 architecture_answer:
   conversation: architecture_walkthrough
   created_by: system
   content: The pipeline watches the vault, parses notes, chunks them, and embeds each section.
+  created_at: 2026-07-10 09:20:05
+  updated_at: 2026-07-10 09:20:05

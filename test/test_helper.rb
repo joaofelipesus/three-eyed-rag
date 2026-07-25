@@ -4,6 +4,14 @@ require "rails/test_help"
 require "mocha/minitest"
 require_relative "support/vector_fixtures"
 
+# Active Storage resolves and memoizes config/storage.yml against Rails.root the first
+# time ActiveStorage::Blob loads in this process (see the activestorage engine's
+# "active_storage.services" initializer). Forcing that to happen now, before any test
+# runs, means a test that stubs Rails.root (e.g. to point at a fake vault directory)
+# can't accidentally be the one that triggers it — which would make it resolve the
+# config path against the stub instead of the real app root and raise.
+ActiveStorage::Blob.service
+
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers

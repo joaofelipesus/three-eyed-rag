@@ -17,8 +17,8 @@ class NoteTest < ActiveSupport::TestCase
     note = Note.new(title: nil, path: nil)
 
     assert_not note.valid?
-    assert_equal ["can't be blank"], note.errors[:title]
-    assert_equal ["can't be blank"], note.errors[:path]
+    assert_equal [ "can't be blank" ], note.errors[:title]
+    assert_equal [ "can't be blank" ], note.errors[:path]
   end
 
   test "generate_embedding splits the note content into sections by heading and embeds each one" do

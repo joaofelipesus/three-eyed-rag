@@ -5,14 +5,14 @@ class ConversationTest < ActiveSupport::TestCase
     conversation = Conversation.new(title: nil)
 
     assert_not conversation.valid?
-    assert_equal ["can't be blank"], conversation.errors[:title]
+    assert_equal [ "can't be blank" ], conversation.errors[:title]
   end
 
   test "is invalid with a duplicate title" do
     conversation = Conversation.new(title: conversations(:architecture_walkthrough).title)
 
     assert_not conversation.valid?
-    assert_equal ["has already been taken"], conversation.errors[:title]
+    assert_equal [ "has already been taken" ], conversation.errors[:title]
   end
 
   test "start! creates a conversation titled with the current timestamp" do

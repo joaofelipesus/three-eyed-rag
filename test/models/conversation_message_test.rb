@@ -5,7 +5,7 @@ class ConversationMessageTest < ActiveSupport::TestCase
     message = ConversationMessage.new(conversation: conversations(:architecture_walkthrough), created_by: :user, content: nil)
 
     assert_not message.valid?
-    assert_equal ["can't be blank"], message.errors[:content]
+    assert_equal [ "can't be blank" ], message.errors[:content]
   end
 
   test "creating a message touches the parent conversation" do

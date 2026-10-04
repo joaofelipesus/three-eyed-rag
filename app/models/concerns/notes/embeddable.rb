@@ -10,7 +10,7 @@ module Notes
 
     # delay before each retry when a request comes back without an embedding (e.g. the
     # model is still cold-loading); escalates one second at a time
-    EMBEDDING_RETRY_DELAYS = [1, 2, 3, 4, 5].freeze
+    EMBEDDING_RETRY_DELAYS = [ 1, 2, 3, 4, 5 ].freeze
 
     # matches lines starting with a level 1-3 heading ("#", "##" or "###"); a run of 4+ "#"
     # fails to match since the heading char run must be followed directly by whitespace, so

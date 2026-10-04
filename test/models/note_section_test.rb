@@ -23,7 +23,7 @@ class NoteSectionTest < ActiveSupport::TestCase
     note_section = NoteSection.new(note: notes(:embedded), content: nil)
 
     assert_not note_section.valid?
-    assert_equal ["can't be blank"], note_section.errors[:content]
+    assert_equal [ "can't be blank" ], note_section.errors[:content]
   end
 
   test "is valid without a previous_note or follow_note" do

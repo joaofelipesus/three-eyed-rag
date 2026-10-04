@@ -9,14 +9,14 @@ class NoteSectionEmbeddingTest < ActiveSupport::TestCase
     note_section_embedding = NoteSectionEmbedding.new(note_section: note_sections(:first), embedding: nil)
 
     assert_not note_section_embedding.valid?
-    assert_equal ["can't be blank"], note_section_embedding.errors[:embedding]
+    assert_equal [ "can't be blank" ], note_section_embedding.errors[:embedding]
   end
 
   test "is invalid when the embedding does not have #{NoteSectionEmbedding::DIMENSIONS} dimensions" do
-    note_section_embedding = NoteSectionEmbedding.new(note_section: note_sections(:first), embedding: [0.1, 0.2, 0.3])
+    note_section_embedding = NoteSectionEmbedding.new(note_section: note_sections(:first), embedding: [ 0.1, 0.2, 0.3 ])
 
     assert_not note_section_embedding.valid?
-    assert_equal ["must have #{NoteSectionEmbedding::DIMENSIONS} dimensions"], note_section_embedding.errors[:embedding]
+    assert_equal [ "must have #{NoteSectionEmbedding::DIMENSIONS} dimensions" ], note_section_embedding.errors[:embedding]
   end
 
   test "uses note_section_id as its primary key" do

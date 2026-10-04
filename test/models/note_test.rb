@@ -336,4 +336,30 @@ class NoteTest < ActiveSupport::TestCase
 
     assert_equal "Sorry, I couldn't find anything relevant.", answer
   end
+
+  test "split_sources separates the Sources list appended to an answer" do
+    answer = "Formatted answer.\n\n**Sources:**\n\n- `/vault/a.md`\n- `/vault/b.md`"
+
+    assert_equal [ "Formatted answer.", [ "/vault/a.md", "/vault/b.md" ] ], Note.split_sources(answer)
+  end
+
+  test "split_sources leaves an answer without a Sources list whole" do
+    assert_equal [ "Just an answer.", [] ], Note.split_sources("Just an answer.")
+  end
+
+  test "split_sources leaves a Sources heading followed by other content in the answer" do
+    answer = "**Sources:** are cited inline.\n\nMore text."
+
+    assert_equal [ answer, [] ], Note.split_sources(answer)
+  end
+
+  test "folders are the path from the vault root down to the note" do
+    note = Note.new(path: "/usr/src/app/obsidian_vault/Notes/Rails/Rails Views/helpers/number_to_currency.md")
+
+    assert_equal [ "Notes", "Rails", "Rails Views", "helpers" ], note.folders
+  end
+
+  test "a note at the vault root has no folders" do
+    assert_empty Note.new(path: "/usr/src/app/obsidian_vault/Inbox.md").folders
+  end
 end

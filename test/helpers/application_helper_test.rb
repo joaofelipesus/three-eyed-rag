@@ -54,4 +54,16 @@ class ApplicationHelperTest < ActionView::TestCase
 
     assert_equal 2, html.scan(%(data-action="code-block#copy")).size
   end
+
+  test "markdown renders the answer's Sources list as note cards" do
+    render html: markdown("Answer.\n\n**Sources:**\n\n- `/usr/src/app/obsidian_vault/Notes/Rails/helpers/number_to_currency.md`")
+
+    assert_select "p", "Answer."
+    assert_select ".answer-sources .answer-sources-count", "1"
+    assert_select ".answer-source[title=?]", "/usr/src/app/obsidian_vault/Notes/Rails/helpers/number_to_currency.md" do
+      assert_select ".answer-source-name", "number_to_currency"
+      assert_select ".answer-source-folders", "Notes › Rails › helpers"
+    end
+    assert_select "code", count: 0
+  end
 end

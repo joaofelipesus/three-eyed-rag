@@ -8,10 +8,20 @@ module ApplicationHelper
     renderer = HighlightedCodeRenderer.new(escape_html: true)
     parser = Redcarpet::Markdown.new(renderer, fenced_code_blocks: true, tables: true, autolink: true)
 
-    parser.render(force_blank_line_before_lists(normalize_code_fences(text.to_s))).html_safe
+    body, source_paths = Note.split_sources(text.to_s)
+    html = parser.render(force_blank_line_before_lists(normalize_code_fences(body))).html_safe
+    return html if source_paths.empty?
+
+    html + render("conversations/sources", sources: source_notes(source_paths))
   end
 
   private
+
+  # the cited notes in citation order; a note removed from the vault since is described from its path alone
+  def source_notes(paths)
+    notes_by_path = Note.where(path: paths).index_by(&:path)
+    paths.map { |path| notes_by_path[path] || Note.new(path: path, title: File.basename(path, ".md")) }
+  end
 
   # LLM output often squeezes a fenced code block onto the fence lines ("```ruby puts 1```",
   # or "```ruby puts 1" with the closing fence below), sometimes indented under a list item.

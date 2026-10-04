@@ -55,6 +55,8 @@ module Notes
     PROMPT
 
     SOURCES_DIRECTIVE = /\n?^SOURCES:[ \t]*(.*)$\z/i
+    SOURCES_HEADING = "**Sources:**"
+    SOURCE_ITEM = /\A- `(.+)`\z/
 
     class_methods do
       def chat(question, sse)
@@ -63,6 +65,19 @@ module Notes
 
         raw_answer = request_chat_completion(question, note_sections, sse)
         finalize_answer(question, raw_answer, note_sections)
+      end
+
+      # Splits the Sources list that sources_section appends to an answer back off it, so it
+      # can be displayed on its own. Returns [answer body, note paths]; an answer without a
+      # well-formed trailing Sources list comes back whole, with no paths.
+      def split_sources(answer)
+        heading_index = answer.rindex(SOURCES_HEADING)
+        return [ answer, [] ] unless heading_index
+
+        lines = answer[(heading_index + SOURCES_HEADING.length)..].split("\n").map(&:strip).compact_blank
+        return [ answer, [] ] unless lines.any? && lines.all? { |line| line.match?(SOURCE_ITEM) }
+
+        [ answer[0...heading_index].rstrip, lines.map { |line| line[SOURCE_ITEM, 1] } ]
       end
 
       private
@@ -115,7 +130,7 @@ module Notes
 
       def sources_section(sections)
         paths = sections.map { |section| section.note.path }.uniq
-        "**Sources:**\n\n#{paths.map { |path| "- `#{path}`" }.join("\n")}"
+        "#{SOURCES_HEADING}\n\n#{paths.map { |path| "- `#{path}`" }.join("\n")}"
       end
 
       # qwen3:8b (the main chat model) can't see images, so relevance is judged by a

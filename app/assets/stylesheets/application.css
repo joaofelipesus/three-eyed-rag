@@ -498,6 +498,85 @@ body {
   border-radius: 8px;
 }
 
+/* Sources an answer was built from (conversations/_sources) */
+.answer-sources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid #3a3150;
+}
+
+.chat-message-answer .answer-sources-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.answer-sources-count {
+  padding: 1px var(--space-2);
+  background-color: var(--sidebar-bg);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+}
+
+.chat-message-answer .answer-sources-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chat-message-answer .answer-source {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 10px var(--space-3);
+  background-color: #1f1a2c;
+  border: 1px solid #332b45;
+  border-radius: 8px;
+}
+
+.answer-source-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #8f86a6;
+}
+
+.answer-source-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.answer-source-name {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.answer-source-folders {
+  color: #8f86a6;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 .chat-form {
   display: flex;
   gap: var(--space-2);

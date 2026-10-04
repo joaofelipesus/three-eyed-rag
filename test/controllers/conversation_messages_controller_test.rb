@@ -26,4 +26,12 @@ class ConversationMessagesControllerTest < ActionDispatch::IntegrationTest
       end
     end
   end
+
+  test "sends the notes and tags picked as context to the model" do
+    Note.expects(:chat).with("What changed?", anything, context_notes: [ notes(:embedded) ], context_tags: [ tags(:ruby) ]).returns("This.")
+
+    post conversation_messages_url, params: { content: "What changed?", note_ids: [ notes(:embedded).id ], tag_ids: [ tags(:ruby).id ] }
+
+    assert_response :success
+  end
 end

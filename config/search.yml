@@ -1,0 +1,16 @@
+# Which store each index is written to and searched in. One stanza per environment, or a named
+# store per stanza when an index names one with store_name:.
+#
+# Adapters: elasticsearch, manticore, meilisearch, mysql, opensearch, postgresql, redis_search, solr, sqlite, typesense.
+# A database adapter takes its connection from the document class and reads nothing here beyond
+# the adapter name. Every other adapter defaults to localhost on its own port.
+development:
+  adapter: sqlite
+
+test:
+  adapter: sqlite
+
+# A local setup. See "Adapter Setup" in the ActiveSearch README for what sqlite takes
+# elsewhere -- a database adapter takes nothing, and the rest differ.
+# production:
+#   adapter: sqlite

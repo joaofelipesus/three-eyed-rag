@@ -1,0 +1,36 @@
+<%# locals: (notes:, query:) %>
+<%# options for the chat input's "#" autocomplete, inserted by the context-picker Stimulus controller %>
+<div class="context-suggestions-heading">
+  Notes matching <span class="context-suggestions-query">#<%= query %></span>
+</div>
+
+<% notes.each do |note| %>
+  <button
+    type="button"
+    class="context-suggestion"
+    role="option"
+    id="note_suggestion_<%= note.id %>"
+    aria-selected="false"
+    data-context-picker-target="option"
+    data-kind="note"
+    data-id="<%= note.id %>"
+    data-label="<%= note.title %>"
+    data-action="context-picker#pick"
+  >
+    <%= lucide_icon "file-text", size: 14, class: "context-suggestion-icon" %>
+    <span class="context-suggestion-text">
+      <span class="context-suggestion-title"><%= query.length >= NameSearchable::MIN_LENGTH ? highlight(note.title, query.split) : note.title %></span>
+      <% if note.folders.any? %>
+        <span class="context-suggestion-detail"><%= note.folders.join(" › ") %></span>
+      <% end %>
+    </span>
+  </button>
+<% end %>
+
+<% if notes.empty? %>
+  <p class="context-suggestions-empty">No notes named like “<%= query %>”</p>
+<% end %>
+
+<div class="context-suggestions-hint" aria-hidden="true">
+  <span>↑↓ navigate</span><span>Enter add as context</span><span>Esc close</span>
+</div>

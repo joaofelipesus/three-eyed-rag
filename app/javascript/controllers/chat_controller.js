@@ -13,7 +13,7 @@ export default class extends Controller {
     event.preventDefault()
 
     // check min content size to make a request
-    const content = this.inputTarget.value
+    const content = this.inputTarget.value.trim()
     if (content.trim().length < 3) return
 
     // change content while submitting
@@ -59,6 +59,9 @@ export default class extends Controller {
   async _streamAnswer(content, answerElement) {
     const body = new URLSearchParams({ content }) // format params into a valid body format
     if (this.conversationIdValue) body.set("conversation_id", this.conversationIdValue)
+    // notes and tags picked with "#" / "@" (context_picker_controller) stay as context until removed
+    this.element.querySelectorAll("input[name='note_ids[]'], input[name='tag_ids[]']")
+      .forEach((input) => body.append(input.name, input.value))
 
     const response = await fetch(this.formTarget.action, {
       method: "POST",

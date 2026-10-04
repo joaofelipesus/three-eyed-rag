@@ -17,7 +17,7 @@ class ConversationMessagesController < ApplicationController
 
     sse = ActionController::Live::SSE.new(response.stream)
 
-    answer = Note.chat(params[:content], sse)
+    answer = Note.chat(params[:content], sse, context_notes: context_notes, context_tags: context_tags)
     @conversation.conversation_messages.create!(created_by: :system, content: answer)
 
     sse.write(done_payload(answer, starting_new_conversation), event: "done")
@@ -28,6 +28,16 @@ class ConversationMessagesController < ApplicationController
   end
 
   private
+
+  # notes the user picked with the "#" autocomplete, sent to the model as primary context
+  def context_notes
+    Note.where(id: Array(params[:note_ids]).first(Note::CONTEXT_NOTES_LIMIT)).to_a
+  end
+
+  # tags the user picked with the "@" autocomplete, whose notes are sent as primary context
+  def context_tags
+    Tag.where(id: Array(params[:tag_ids]).first(Note::CONTEXT_TAGS_LIMIT)).to_a
+  end
 
   def done_payload(answer, starting_new_conversation)
     payload = { html: view_context.markdown(answer) }

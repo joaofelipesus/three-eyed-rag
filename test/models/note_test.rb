@@ -158,7 +158,52 @@ class NoteTest < ActiveSupport::TestCase
     end
   end
 
-  test "process_vault skips retagging and re-embedding a note whose checksum is unchanged" do
+  test "tag_names reads the tags listed on a Tags line or heading" do
+    assert_equal %w[ubuntu setup], Note.new(content: "Tags: #ubuntu #setup ").tag_names
+    assert_equal %w[algoritimos ruby], Note.new(content: "Body.\n\n### Tags: #algoritimos #ruby\n").tag_names
+    assert_equal %w[ruby rails web], Note.new(content: "### Tags:\n#ruby #rails\n#web\n\nMore text #notatag\n").tag_names
+  end
+
+  test "tag_names ignores # that isn't in a Tags marker" do
+    assert_empty Note.new(content: "# Title\n\nWritten in C# with a #hashtag in prose.").tag_names
+  end
+
+  test "process_vault tags an unchanged note whose tags were never read, without re-embedding it" do
+    Dir.mktmpdir do |dir|
+      vault_dir = File.join(dir, "obsidian_vault")
+      FileUtils.mkdir_p(vault_dir)
+      content = "# Title\n\nBody.\n\n### Tags: #ruby #newtag\n"
+      path = File.join(vault_dir, "note.md")
+      File.write(path, content)
+      note = Note.create!(path: path, title: "note", content: content, checksum: Digest::SHA256.hexdigest(content))
+
+      Rails.stubs(:root).returns(Pathname.new(dir))
+      Note.any_instance.expects(:generate_embedding).never
+
+      Note.process_vault
+
+      assert_equal %w[newtag ruby], note.reload.tags.pluck(:name).sort
+    end
+  end
+
+  test "process_vault drops tags a note no longer lists" do
+    Dir.mktmpdir do |dir|
+      vault_dir = File.join(dir, "obsidian_vault")
+      FileUtils.mkdir_p(vault_dir)
+      content = "# Title\n\n### Tags: #rails\n"
+      path = File.join(vault_dir, "note.md")
+      File.write(path, content)
+      note = Note.create!(path: path, title: "note", content: content, checksum: Digest::SHA256.hexdigest(content))
+      note.tags << tags(:ruby)
+
+      Rails.stubs(:root).returns(Pathname.new(dir))
+      Note.process_vault
+
+      assert_equal [ "rails" ], note.reload.tags.pluck(:name)
+    end
+  end
+
+  test "process_vault skips re-embedding a note whose checksum is unchanged and keeps its tags" do
     Dir.mktmpdir do |dir|
       vault_dir = File.join(dir, "obsidian_vault")
       FileUtils.mkdir_p(vault_dir)
@@ -180,6 +225,7 @@ class NoteTest < ActiveSupport::TestCase
       note = Note.find_by(path: File.join(vault_dir, "note.md"))
       assert note.processed?
       assert_equal Digest::SHA256.hexdigest(content), note.checksum
+      assert_equal [ "unchanged" ], note.tags.pluck(:name)
       section_ids = note.note_sections.pluck(:id)
       tag_count = NoteTag.count
 
@@ -361,5 +407,125 @@ class NoteTest < ActiveSupport::TestCase
 
   test "a note at the vault root has no folders" do
     assert_empty Note.new(path: "/usr/src/app/obsidian_vault/Inbox.md").folders
+  end
+
+  test "search_by_title matches part of a word in the file name, ignoring case and accents" do
+    Note.find_each(&:reindex) # fixtures skip the callbacks that fill the search index
+    note = Note.create!(title: "Definição de campo decimal rails", path: "rails/Definição de campo decimal rails.md")
+
+    assert_equal [ note ], Note.search_by_title("DEFINICAO")
+    assert_includes Note.search_by_title("archi"), notes(:embedded)
+  end
+
+  test "search_by_title finds multi-word names from words typed in any order" do
+    note = Note.create!(title: "Definição de campo decimal rails", path: "rails/Definição de campo decimal rails.md")
+    Note.create!(title: "Rails views", path: "rails/Rails views.md")
+
+    assert_equal [ note ], Note.search_by_title("decimal rails")
+    assert_equal [ note ], Note.search_by_title("rails  campo decim")
+  end
+
+  test "search_by_title doesn't match on the folders in the path" do
+    Note.find_each(&:reindex)
+    assert_empty Note.search_by_title("three-eyed-rag")
+  end
+
+  test "search_by_title treats underscores as literal characters" do
+    note = Note.create!(title: "number_to_currency", path: "rails/number_to_currency.md")
+    Note.create!(title: "numberXtoXcurrency", path: "rails/numberXtoXcurrency.md")
+
+    assert_equal [ note ], Note.search_by_title("number_to")
+  end
+
+  test "search_by_title matches a name prefix for queries too short to search" do
+    assert_equal [ notes(:pending_embedding) ], Note.search_by_title("20")
+  end
+
+  test "search_by_title leaves out excluded notes" do
+    Note.find_each(&:reindex)
+    assert_empty Note.search_by_title("architecture", exclude: [ notes(:embedded).id.to_s ])
+  end
+
+  test "chat sends picked context notes whole as primary context, numbered before the retrieved sections" do
+    Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+    context_note = notes(:pending_embedding)
+
+    requested_body = nil
+    stream_lines = [
+      { message: { content: "Answer.\nSOURCES: 1" }, done: false }.to_json + "\n",
+      { message: { content: "" }, done: true }.to_json + "\n"
+    ]
+    fake_response = stub("response")
+    fake_response.stubs(:read_body).multiple_yields(*stream_lines.map { |line| [ line ] })
+    expectation = Net::HTTP.any_instance.stubs(:request)
+    expectation.with { |request| requested_body = JSON.parse(request.body) }
+    expectation.yields(fake_response)
+
+    sse = Object.new
+    sse.define_singleton_method(:write) { |payload, event: nil| nil }
+
+    answer = Note.chat("What did I do today?", sse, context_notes: [ context_note ])
+
+    system_message, user_message = requested_body["messages"].map { |message| message["content"] }
+    assert_includes system_message, "Primary context"
+    assert_includes user_message, "Primary context (picked by the user for this message):\n\n[1] Source: #{context_note.path}\n#{context_note.content}"
+    assert_includes user_message, "[2] Source: #{notes(:embedded).path}"
+    assert_operator user_message.index("Primary context"), :<, user_message.index("Note sections:")
+    assert_equal "Answer.\n\n**Sources:**\n\n- `#{context_note.path}`", answer
+  end
+
+  test "chat leaves out retrieved sections of a note that was picked as context" do
+    Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+
+    requested_body = nil
+    fake_response = stub("response")
+    fake_response.stubs(:read_body).yields({ message: { content: "Answer." }, done: true }.to_json + "\n")
+    expectation = Net::HTTP.any_instance.stubs(:request)
+    expectation.with { |request| requested_body = JSON.parse(request.body) }
+    expectation.yields(fake_response)
+
+    sse = Object.new
+    sse.define_singleton_method(:write) { |payload, event: nil| nil }
+
+    Note.chat("What is the architecture?", sse, context_notes: [ notes(:embedded) ])
+
+    user_message = requested_body["messages"].last["content"]
+    assert_equal 1, user_message.scan("Source: #{notes(:embedded).path}").size
+  end
+
+  test "chat sends the sections of notes with a picked tag as primary context" do
+    Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+
+    requested_body = nil
+    fake_response = stub("response")
+    fake_response.stubs(:read_body).yields({ message: { content: "Answer.\nSOURCES: 1" }, done: true }.to_json + "\n")
+    expectation = Net::HTTP.any_instance.stubs(:request)
+    expectation.with { |request| requested_body = JSON.parse(request.body) }
+    expectation.yields(fake_response)
+
+    sse = Object.new
+    sse.define_singleton_method(:write) { |payload, event: nil| nil }
+
+    answer = Note.chat("What is the architecture?", sse, context_tags: [ tags(:ruby) ])
+
+    user_message = requested_body["messages"].last["content"]
+    primary, retrieved = user_message.split("Note sections:")
+    assert_includes primary, note_sections(:first).content
+    assert_includes primary, note_sections(:second).content
+    assert_not_includes retrieved, "Source: #{notes(:embedded).path}"
+    assert_equal "Answer.\n\n**Sources:**\n\n- `#{notes(:embedded).path}`", answer
+  end
+
+  test "chat ignores a picked tag with no notes" do
+    Note.any_instance.stubs(:fetch_embedding).returns(Array.new(NoteSectionEmbedding::DIMENSIONS, 0.1))
+    fake_response = stub("response")
+    fake_response.stubs(:read_body).yields({ message: { content: "Answer." }, done: true }.to_json + "\n")
+    Net::HTTP.any_instance.stubs(:request).yields(fake_response)
+    sse = Object.new
+    sse.define_singleton_method(:write) { |payload, event: nil| nil }
+
+    answer = Note.chat("Anything?", sse, context_tags: [ Tag.create!(name: "unused") ])
+
+    assert_equal "Answer.\n\n**Sources:**\n\n- `#{notes(:embedded).path}`", answer
   end
 end

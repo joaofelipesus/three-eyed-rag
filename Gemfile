@@ -82,3 +82,5 @@ group :test do
 end
 
 gem "lucide-rails", "~> 0.7.4"
+
+gem "rails-active_search", "~> 0.1.0"

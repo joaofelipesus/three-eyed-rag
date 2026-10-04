@@ -595,6 +595,191 @@ body {
   overflow-wrap: anywhere;
 }
 
+/* chat input area: "#" note / "@" tag autocomplete (context_picker_controller) + picked context chips */
+.chat-composer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.context-suggestions {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + var(--space-2));
+  z-index: 5;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 6px;
+  background-color: var(--sidebar-bg);
+  border: 1px solid #3a3150;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.context-suggestions[hidden] {
+  display: none;
+}
+
+.context-suggestions-heading {
+  padding: 6px 10px var(--space-2);
+  color: #8f86a6;
+  font-size: 0.75rem;
+}
+
+.context-suggestions-query {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.context-suggestion {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) 10px;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.context-suggestion:hover,
+.context-suggestion[aria-selected="true"] {
+  background-color: var(--sidebar-border);
+}
+
+.context-suggestion-icon {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: #8f86a6;
+}
+
+.context-suggestion-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.context-suggestion-title {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.context-suggestion-title mark {
+  padding: 0 1px;
+  background-color: rgba(203, 184, 245, 0.22);
+  color: #fff;
+  border-radius: 3px;
+}
+
+.context-suggestion-detail {
+  color: #8f86a6;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.context-suggestions-empty {
+  margin: 0;
+  padding: 10px;
+  color: #8f86a6;
+  font-size: 0.8125rem;
+}
+
+.context-suggestions-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+  padding: var(--space-2) 10px var(--space-1);
+  border-top: 1px solid var(--sidebar-border);
+  color: #8f86a6;
+  font-size: 0.6875rem;
+}
+
+.chat-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-context[hidden] {
+  display: none;
+}
+
+.chat-context-label {
+  color: #8f86a6;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.chat-context-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.context-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: var(--space-1) var(--space-1) var(--space-1) 10px;
+  background-color: var(--sidebar-border);
+  color: var(--text-primary);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+}
+
+.context-chip-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.context-chip-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.context-chip-remove {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: none;
+  color: var(--text-muted);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.context-chip-remove:hover {
+  background-color: var(--sidebar-bg);
+  color: var(--text-primary);
+}
+
 .chat-form {
   display: flex;
   gap: var(--space-2);

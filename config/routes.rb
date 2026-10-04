@@ -3,6 +3,11 @@ Rails.application.routes.draw do
 
   resources :notes, only: [] do
     post :reload_valut, on: :collection
+    get :search, on: :collection
+  end
+
+  resources :tags, only: [] do
+    get :search, on: :collection
   end
 
   resources :conversations, only: [ :index, :show, :update, :destroy ]

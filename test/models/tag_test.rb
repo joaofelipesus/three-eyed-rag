@@ -20,4 +20,11 @@ class TagTest < ActiveSupport::TestCase
     assert_not tag.valid?
     assert_equal [ "has already been taken" ], tag.errors[:name]
   end
+
+  test "search_by_tag_name matches part of a tag name" do
+    Tag.find_each(&:reindex)
+
+    assert_equal [ tags(:rails) ], Tag.search_by_tag_name("ail")
+    assert_equal [ tags(:ruby) ], Tag.search_by_tag_name("ru")
+  end
 end

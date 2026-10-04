@@ -66,4 +66,28 @@ class ApplicationHelperTest < ActionView::TestCase
     end
     assert_select "code", count: 0
   end
+
+  test "markdown turns a fence opened after text on a list item into a highlighted block" do
+    html = markdown("- **Example**: ```Ruby Product.new.tap do |product|\n product.save\n end ```\n- **Next**: more text")
+
+    assert_includes html, "<strong>Example</strong>:"
+    assert_includes html, %(<span class="code-block-language">ruby</span>)
+    assert_includes html, %(<span class="k">do</span>)
+    assert_includes html, "<strong>Next</strong>: more text"
+  end
+
+  test "markdown doesn't turn a closing fence on its own line into an empty block" do
+    html = markdown("Like in: ```ruby words.tally.tap { |r| puts r }\n ```\n\nAfter.")
+
+    assert_equal 1, html.scan(%(class="code-block")).size
+    assert_includes html, %(<span class="nf">tally</span>)
+    assert_includes html, "<p>After.</p>"
+  end
+
+  test "markdown keeps text written after a closing fence on the same line" do
+    html = markdown("```ruby puts 1``` and that's it")
+
+    assert_includes html, %(<span class="nb">puts</span>)
+    assert_includes html, "<p>and that&#39;s it</p>"
+  end
 end

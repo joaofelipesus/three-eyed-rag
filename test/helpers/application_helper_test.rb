@@ -59,7 +59,7 @@ class ApplicationHelperTest < ActionView::TestCase
     render html: markdown("Answer.\n\n**Sources:**\n\n- `/usr/src/app/obsidian_vault/Notes/Rails/helpers/number_to_currency.md`")
 
     assert_select "p", "Answer."
-    assert_select ".answer-sources .answer-sources-count", "1"
+    assert_select "details.answer-sources[open] > summary .answer-sources-count", "1"
     assert_select ".answer-source[title=?]", "/usr/src/app/obsidian_vault/Notes/Rails/helpers/number_to_currency.md" do
       assert_select ".answer-source-name", "number_to_currency"
       assert_select ".answer-source-folders", "Notes › Rails › helpers"

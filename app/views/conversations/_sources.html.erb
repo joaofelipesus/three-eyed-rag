@@ -1,10 +1,11 @@
 <%# locals: (sources:) %>
 <%# sources: the Note records an answer was built from %>
 <%# rendered from the Sources list ApplicationHelper#markdown splits off an answer %>
-<section class="answer-sources" aria-label="Sources">
-  <h4 class="answer-sources-heading">
+<details class="answer-sources" open>
+  <summary class="answer-sources-heading">
+    <%= lucide_icon "chevron-right", size: 14, class: "answer-sources-chevron" %>
     Sources <span class="answer-sources-count"><%= sources.size %></span>
-  </h4>
+  </summary>
 
   <ul class="answer-sources-list">
     <% sources.each do |note| %>
@@ -19,4 +20,4 @@
       </li>
     <% end %>
   </ul>
-</section>
+</details>

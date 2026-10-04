@@ -498,26 +498,44 @@ body {
   border-radius: 8px;
 }
 
-/* Sources an answer was built from (conversations/_sources) */
+/* Sources an answer was built from (conversations/_sources), a <details> the user can collapse */
 .answer-sources {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
   margin-top: var(--space-4);
-  padding-top: var(--space-4);
+  padding-top: var(--space-3);
   border-top: 1px solid #3a3150;
 }
 
 .chat-message-answer .answer-sources-heading {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  margin: 0;
+  margin-left: calc(var(--space-1) * -1);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-1);
   color: var(--text-muted);
+  border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.chat-message-answer .answer-sources-heading::-webkit-details-marker {
+  display: none;
+}
+
+.chat-message-answer .answer-sources-heading:hover {
+  background-color: var(--sidebar-bg);
+}
+
+.answer-sources-chevron {
+  transition: transform 150ms ease;
+}
+
+.answer-sources[open] .answer-sources-chevron {
+  transform: rotate(90deg);
 }
 
 .answer-sources-count {
@@ -532,7 +550,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--space-2);
-  margin: 0;
+  margin: var(--space-2) 0 0;
   padding: 0;
   list-style: none;
 }

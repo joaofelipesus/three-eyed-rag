@@ -78,3 +78,5 @@ group :test do
   # Drives headless Chrome for system tests [https://github.com/rubycdp/cuprite]
   gem "cuprite"
 end
+
+gem "lucide-rails", "~> 0.7.4"

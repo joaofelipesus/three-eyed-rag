@@ -49,4 +49,35 @@ class ConversationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Architecture Overview walkthrough", conversation.reload.title
     assert_select "turbo-stream[action=replace][target=conversation_title]"
   end
+
+  test "destroy deletes a named conversation and its messages when confirmed with its title" do
+    conversation = conversations(:architecture_walkthrough)
+
+    assert_difference -> { Conversation.count } => -1, -> { ConversationMessage.count } => -conversation.conversation_messages.count do
+      delete conversation_url(conversation), params: { confirmation: "Architecture Overview walkthrough" }
+    end
+
+    assert_redirected_to root_url
+    assert_response :see_other
+  end
+
+  test "destroy deletes an unnamed conversation when confirmed with \"confirm\"" do
+    conversation = Conversation.start!
+
+    assert_difference -> { Conversation.count }, -1 do
+      delete conversation_url(conversation), params: { confirmation: "confirm" }
+    end
+
+    assert_redirected_to root_url
+  end
+
+  test "destroy keeps the conversation when the confirmation doesn't match" do
+    conversation = conversations(:architecture_walkthrough)
+
+    assert_no_difference -> { Conversation.count } do
+      delete conversation_url(conversation), params: { confirmation: "confirm" }
+    end
+
+    assert_redirected_to conversation_url(conversation)
+  end
 end

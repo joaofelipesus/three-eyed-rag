@@ -1,0 +1,27 @@
+<%# locals: (conversation:) %>
+<%# modal asking the user to type a confirmation before deleting the conversation; opened and driven by
+    the delete-conversation Stimulus controller, which must be on an ancestor element %>
+<dialog
+  class="delete-dialog"
+  aria-labelledby="delete_conversation_heading"
+  data-delete-conversation-target="dialog"
+  data-action="click->delete-conversation#closeOnBackdrop"
+>
+  <%= form_with url: conversation_path(conversation), method: :delete, class: "delete-dialog-panel" do |form| %>
+    <h2 id="delete_conversation_heading" class="delete-dialog-heading">Delete conversation?</h2>
+    <p class="delete-dialog-text">
+      This permanently deletes <strong><%= conversation.title_in_database %></strong> and all its messages. This can't be undone.
+    </p>
+
+    <%= form.label :confirmation, for: "delete_conversation_confirmation", class: "delete-dialog-label" do %>
+      Type <code><%= conversation.deletion_confirmation %></code> to confirm
+    <% end %>
+    <%= form.text_field :confirmation, id: "delete_conversation_confirmation", class: "delete-dialog-input", autocomplete: "off",
+          data: { delete_conversation_target: "input", action: "input->delete-conversation#check" } %>
+
+    <div class="delete-dialog-actions">
+      <button type="button" class="delete-dialog-cancel" data-action="delete-conversation#close">Cancel</button>
+      <%= form.submit "Delete conversation", class: "delete-dialog-submit", disabled: true, data: { delete_conversation_target: "submit" } %>
+    </div>
+  <% end %>
+</dialog>

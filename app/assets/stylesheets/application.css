@@ -485,3 +485,122 @@ body {
 .conversations-list a:hover {
   color: var(--text-muted);
 }
+
+.chat-title-delete-button {
+  color: #f0a3a3;
+}
+
+.chat-title-delete-button:hover {
+  color: #ffc2c2;
+}
+
+/* modal confirmation for deleting a conversation; showModal() puts it in the top layer over the whole page */
+.delete-dialog {
+  box-sizing: border-box;
+  width: calc(100% - (var(--space-4) * 2));
+  max-width: 440px;
+  padding: 0;
+  background-color: var(--sidebar-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--sidebar-border);
+  border-radius: 12px;
+}
+
+.delete-dialog::backdrop {
+  background-color: rgba(10, 8, 16, 0.72);
+}
+
+.delete-dialog-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+.delete-dialog-heading {
+  margin: 0;
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.delete-dialog-text {
+  margin: 0;
+  color: #cfc6e4;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.delete-dialog-text strong {
+  color: #fff;
+}
+
+.delete-dialog-label {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.delete-dialog-label code {
+  padding: 0.15em 0.4em;
+  background-color: var(--sidebar-border);
+  color: #f0c9a0;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.delete-dialog-input {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: calc(var(--space-2) * -1);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--content-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.delete-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.delete-dialog-cancel,
+.delete-dialog-submit {
+  padding: var(--space-2) var(--space-4);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.delete-dialog-cancel {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--accent);
+}
+
+.delete-dialog-cancel:hover {
+  background-color: var(--sidebar-border);
+}
+
+.delete-dialog-submit {
+  background-color: #b42c3c;
+  color: #fff;
+  border: none;
+}
+
+.delete-dialog-submit:hover {
+  background-color: #9a2433;
+}
+
+.delete-dialog-submit:disabled {
+  background-color: var(--sidebar-border);
+  color: #8f86a6;
+  cursor: not-allowed;
+}

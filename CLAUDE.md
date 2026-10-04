@@ -28,7 +28,7 @@ RAG features require a local **Ollama** server reachable at `OLLAMA_HOST` (defau
 bin/rails test                          # full test suite (Minitest)
 bin/rails test test/models/foo_test.rb  # single file
 bin/rails test test/models/foo_test.rb:12  # single test at line
-bin/rails test:system                   # system tests (Capybara/Selenium)
+bin/rails test:system                   # system tests (Capybara + Cuprite, headless Chrome)
 env RAILS_ENV=test bin/rails db:test:prepare test   # matches CI's test step
 ```
 Tests run in parallel (`parallelize(workers: :number_of_processors)`, `test/test_helper.rb`). `note_embeddings`/`note_section_embeddings` are `vec0` virtual tables that can't be loaded through Rails' normal batched YAML fixture insert, so they're seeded separately via `test/support/vector_fixtures.rb` — use its `note_embeddings(:label)` / `note_section_embeddings(:label)` accessors in tests instead of the usual fixture method, keyed to the same labels as `notes.yml`/`note_sections.yml`. Because `vec0` tables don't roll back with the per-test transaction, fixture loading is idempotent (skips rows that already exist).

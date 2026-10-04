@@ -11,13 +11,13 @@ class TagTest < ActiveSupport::TestCase
     tag = Tag.new(name: nil)
 
     assert_not tag.valid?
-    assert_equal ["can't be blank"], tag.errors[:name]
+    assert_equal [ "can't be blank" ], tag.errors[:name]
   end
 
   test "is invalid with a duplicate name" do
     tag = Tag.new(name: tags(:ruby).name)
 
     assert_not tag.valid?
-    assert_equal ["has already been taken"], tag.errors[:name]
+    assert_equal [ "has already been taken" ], tag.errors[:name]
   end
 end

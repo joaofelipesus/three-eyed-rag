@@ -62,7 +62,7 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   # A mocking and stubbing library for Ruby
-  gem 'mocha'
+  gem "mocha"
 end
 
 group :development do
@@ -75,5 +75,8 @@ end
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
-  gem "selenium-webdriver"
+  # Drives headless Chrome for system tests [https://github.com/rubycdp/cuprite]
+  gem "cuprite"
 end
+
+gem "lucide-rails", "~> 0.7.4"

@@ -22,6 +22,18 @@ class ConversationsController < ApplicationController
     end
   end
 
+  def destroy
+    @conversation = Conversation.find(params[:id])
+
+    # the dialog only enables its submit once the confirmation matches; this guards direct requests too
+    if params[:confirmation] == @conversation.deletion_confirmation
+      @conversation.destroy!
+      redirect_to root_path, status: :see_other
+    else
+      redirect_to conversation_path(@conversation), status: :see_other
+    end
+  end
+
   private
 
   def conversation_params

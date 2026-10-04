@@ -2,6 +2,13 @@ FROM ruby:3.4.6
 
 WORKDIR /usr/src/app
 
+# Chromium runs the system tests (test/system, driven by Cuprite).
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y chromium && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+ENV BROWSER_PATH="/usr/bin/chromium"
+
 # copy Gemfile to container
 COPY Gemfile Gemfile.lock ./
 

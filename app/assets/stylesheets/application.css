@@ -410,6 +410,81 @@ body {
   color: inherit;
 }
 
+/* fenced code blocks, highlighted server-side by Rouge (HighlightedCodeRenderer) */
+.chat-message-answer .code-block {
+  margin: 0 0 var(--space-3);
+  overflow: hidden;
+  background-color: var(--sidebar-bg);
+  border: 1px solid #241f31;
+  border-radius: 8px;
+}
+
+.chat-message-answer .code-block pre {
+  margin: 0;
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  border-bottom: 1px solid #241f31;
+}
+
+.code-block-language {
+  color: #8f86a6;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.code-block-copy {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  color: var(--text-muted);
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.code-block-copy:hover {
+  color: var(--text-primary);
+  background-color: var(--sidebar-border);
+}
+
+.code-block-copy span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.code-block-copy span[hidden] {
+  display: none;
+}
+
+/* Rouge token classes */
+.highlight .k, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv, .highlight .ow { color: #ff9ac1; }
+.highlight .kc, .highlight .kt { color: #ff9ac1; }
+.highlight .nf, .highlight .nb, .highlight .fm, .highlight .bp { color: #82aaff; }
+.highlight .nc, .highlight .nn, .highlight .no, .highlight .ss, .highlight .na, .highlight .nt { color: #f0c9a0; }
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .se,
+.highlight .sh, .highlight .si, .highlight .sr, .highlight .sx, .highlight .dl { color: #c3e88d; }
+.highlight .m, .highlight .mi, .highlight .mf, .highlight .mh, .highlight .mo, .highlight .mb, .highlight .il { color: #f78c6c; }
+.highlight .vi, .highlight .vc, .highlight .vg, .highlight .nv { color: #e6def9; }
+.highlight .c, .highlight .c1, .highlight .cm, .highlight .cs, .highlight .ch, .highlight .cd { color: #8f86a6; font-style: italic; }
+.highlight .cp, .highlight .cpf { color: #89ddff; }
+.highlight .err { color: #ff8b8b; }
+
 .chat-message-answer a {
   color: var(--text-muted);
   text-decoration: underline;

@@ -47,6 +47,8 @@ gem "image_processing", "~> 1.2"
 
 # Render Markdown chat answers as HTML [https://github.com/vmg/redcarpet]
 gem "redcarpet"
+# Syntax-highlights fenced code blocks in chat answers [https://github.com/rouge-ruby/rouge]
+gem "rouge", "~> 5.1"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

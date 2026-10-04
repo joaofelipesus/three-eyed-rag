@@ -13,13 +13,16 @@ class UserCopyCodeBlockTest < ApplicationSystemTestCase
     MARKDOWN
 
     visit conversation_path(conversation)
-    page.driver.browser.command("Browser.grantPermissions", origin: page.server.base_url,
-                                                            permissions: %w[clipboardReadWrite clipboardSanitizedWrite])
+    # headless Chrome can't read the real clipboard back, so record what the page writes to it
+    page.execute_script(<<~JS)
+      Object.defineProperty(navigator.clipboard, "writeText", {
+        value: (text) => { window.copiedText = text; return Promise.resolve() }
+      })
+    JS
+
     within(".code-block") { click_button "Copy code" }
 
     within(".code-block") { assert_button "Copied" }
-    assert_equal "<%= number_to_currency(product.price) %>\n", page.evaluate_async_script(<<~JS)
-      navigator.clipboard.readText().then(arguments[0])
-    JS
+    assert_equal "<%= number_to_currency(product.price) %>\n", page.evaluate_script("window.copiedText")
   end
 end

@@ -2,7 +2,11 @@ module Notes
   module VaultProcessable
     extend ActiveSupport::Concern
 
-    TAGS_LINE_PATTERN = /^Tags:\s*(.+)$/i
+    # "Tags: #a #b", or a heading as most vault notes write it: "### Tags: #a #b", or "### Tags:"
+    # with the tags on the lines below it
+    TAGS_MARKER = /^(?:\#{1,6}[ \t]*Tags:?|Tags:)[ \t]*(.*)$/i
+    # "#name" at the start of the text or after whitespace, so heading markers ("### ") and "C#" don't count
+    TAG = /(?:^|\s)#([^\s#,;]+)/
 
     class_methods do
       def process_vault
@@ -25,16 +29,13 @@ module Notes
             last_updated_at: File.mtime(file)
           )
 
+          # cheap, so done for unchanged notes too: keeps tags in sync with what the note lists
+          note.sync_tags!
+
           if content_unchanged
             note.processed!
           else
             begin
-              tags_line = content[TAGS_LINE_PATTERN, 1]
-              tags_line&.scan(/#(\S+)/)&.flatten&.each do |tag_name|
-                tag = Tag.find_or_create_by!(name: tag_name)
-                note.note_tags.find_or_create_by!(tag: tag)
-              end
-
               # TODO: link related notes once a Note-to-Note relation model exists
               note.generate_embedding
 
@@ -79,6 +80,19 @@ module Notes
           partial: "notes/vault_reload_widget"
         )
       end
+    end
+
+    # replaces the note's tags with the ones its Tags marker lists
+    def sync_tags!
+      self.tags = tag_names.map { |name| Tag.find_or_create_by!(name: name) }
+    end
+
+    def tag_names
+      marker = content.to_s.match(TAGS_MARKER)
+      return [] unless marker
+
+      listed = marker[1].presence || content[marker.end(0)..].sub(/\A\s*\n/, "")[/\A.*?(?=\n[ \t]*\n|\n#+\s|\z)/m].to_s
+      listed.scan(TAG).flatten.uniq
     end
   end
 end

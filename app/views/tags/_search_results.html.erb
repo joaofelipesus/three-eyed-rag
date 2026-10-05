@@ -1,0 +1,34 @@
+<%# locals: (tags:, query:) %>
+<%# options for the chat input's "@" autocomplete, inserted by the context-picker Stimulus controller %>
+<div class="context-suggestions-heading">
+  Tags matching <span class="context-suggestions-query">@<%= query %></span>
+</div>
+
+<% tags.each do |tag| %>
+  <button
+    type="button"
+    class="context-suggestion"
+    role="option"
+    id="tag_suggestion_<%= tag.id %>"
+    aria-selected="false"
+    data-context-picker-target="option"
+    data-kind="tag"
+    data-id="<%= tag.id %>"
+    data-label="<%= tag.name %>"
+    data-action="context-picker#pick"
+  >
+    <%= lucide_icon "tag", size: 14, class: "context-suggestion-icon" %>
+    <span class="context-suggestion-text">
+      <span class="context-suggestion-title"><%= query.length >= NameSearchable::MIN_LENGTH ? highlight(tag.name, query.split) : tag.name %></span>
+      <span class="context-suggestion-detail"><%= pluralize(tag.note_tags.size, "note") %></span>
+    </span>
+  </button>
+<% end %>
+
+<% if tags.empty? %>
+  <p class="context-suggestions-empty">No tags named like “<%= query %>”</p>
+<% end %>
+
+<div class="context-suggestions-hint" aria-hidden="true">
+  <span>↑↓ navigate</span><span>Enter add as context</span><span>Esc close</span>
+</div>

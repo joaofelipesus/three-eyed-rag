@@ -1,4 +1,12 @@
 class NotesController < ApplicationController
+  # suggestions for the chat input's "#" autocomplete, matched by note file name
+  def search
+    @query = params[:q].to_s.strip
+    @notes = Note.search_by_title(@query, exclude: params[:exclude])
+
+    render partial: "notes/search_results", locals: { notes: @notes, query: @query }
+  end
+
   def reload_valut
     total = Note.vault_documents_count
     ProcessVaultJob.perform_later

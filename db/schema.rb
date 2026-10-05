@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_24_110532) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_04_151321) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -55,9 +55,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_110532) do
     t.index ["title"], name: "index_conversations_on_title", unique: true
   end
 
+  create_table "execution_hosts", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "address", null: false
+    t.integer "port", default: 11434, null: false
+    t.boolean "default_host", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["address", "port"], name: "index_execution_hosts_on_address_and_port", unique: true
+    t.index ["name"], name: "index_execution_hosts_on_name", unique: true
+  end
+
 # Could not dump table "note_embeddings_vector_chunks00" because of following StandardError
 #   Unknown type '' for column 'rowid'
 
+
+  create_table "note_search_documents", force: :cascade do |t|
+    t.string "note_id", null: false
+    t.index ["note_id"], name: "index_note_search_documents_on_note_id", unique: true
+  end
 
 # Could not dump table "note_section_embeddings_vector_chunks00" because of following StandardError
 #   Unknown type '' for column 'rowid'
@@ -97,6 +113,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_110532) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "tag_search_documents", force: :cascade do |t|
+    t.string "tag_id", null: false
+    t.index ["tag_id"], name: "index_tag_search_documents_on_tag_id", unique: true
+  end
+
   create_table "tags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
@@ -116,5 +137,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_110532) do
   # Virtual tables defined in this database.
   # Note that virtual tables may not work with other database engines. Be careful if changing database.
   create_virtual_table "note_embeddings", "vec0", ["note_id integer primary key", "embedding float[2560]"]
+  create_virtual_table "note_search_documents_fts", "fts5", ["title", "tokenize='trigram remove_diacritics 1'"]
   create_virtual_table "note_section_embeddings", "vec0", ["note_section_id integer primary key", "embedding float[2560]"]
+  create_virtual_table "tag_search_documents_fts", "fts5", ["name", "tokenize='trigram remove_diacritics 1'"]
 end

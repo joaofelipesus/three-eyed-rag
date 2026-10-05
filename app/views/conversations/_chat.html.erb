@@ -19,9 +19,51 @@
     </div>
   </div>
 
-  <%= form_with url: conversation_messages_path, method: :post, class: "chat-form",
-        data: { chat_target: "form", action: "submit->chat#send" } do |form| %>
-    <%= form.text_field :content, placeholder: "Ask something about your notes...", class: "chat-input", autocomplete: "off", required: true, minlength: 3, autofocus: true, data: { chat_target: "input" } %>
-    <%= form.submit "Send", class: "chat-submit", data: { chat_target: "submit" } %>
-  <% end %>
+  <div class="chat-composer" data-controller="context-picker"
+       data-context-picker-notes-url-value="<%= search_notes_path %>"
+       data-context-picker-tags-url-value="<%= search_tags_path %>"
+       data-context-picker-limit-value="<%= Note::CONTEXT_NOTES_LIMIT %>">
+    <div id="context_suggestions" class="context-suggestions" role="listbox" aria-label="Notes and tags" hidden
+         data-context-picker-target="suggestions" data-action="mousedown->context-picker#keepFocus"></div>
+
+    <div class="chat-context" hidden data-context-picker-target="context">
+      <span class="chat-context-label">Context</span>
+      <div class="chat-context-chips" data-context-picker-target="chips"></div>
+    </div>
+
+    <template data-context-picker-target="noteChipTemplate">
+      <span class="context-chip">
+        <input type="hidden" name="note_ids[]">
+        <%= lucide_icon "file-text", size: 14, class: "context-chip-icon" %>
+        <span class="context-chip-title"></span>
+        <button type="button" class="context-chip-remove" data-action="context-picker#remove">
+          <%= lucide_icon "x", size: 12 %>
+        </button>
+      </span>
+    </template>
+
+    <template data-context-picker-target="tagChipTemplate">
+      <span class="context-chip">
+        <input type="hidden" name="tag_ids[]">
+        <%= lucide_icon "tag", size: 14, class: "context-chip-icon" %>
+        <span class="context-chip-title"></span>
+        <button type="button" class="context-chip-remove" data-action="context-picker#remove">
+          <%= lucide_icon "x", size: 12 %>
+        </button>
+      </span>
+    </template>
+
+    <%= form_with url: conversation_messages_path, method: :post, class: "chat-form",
+          data: { chat_target: "form", action: "submit->chat#send" } do |form| %>
+      <%= form.text_field :content, placeholder: "Ask something about your notes... (# adds a note, @ a tag as context)",
+            class: "chat-input", autocomplete: "off", required: true, minlength: 3, autofocus: true,
+            role: "combobox", aria: { autocomplete: "list", controls: "context_suggestions", expanded: false },
+            data: {
+              chat_target: "input",
+              context_picker_target: "input",
+              action: "input->context-picker#search keydown->context-picker#navigate blur->context-picker#close"
+            } %>
+      <%= form.submit "Send", class: "chat-submit", data: { chat_target: "submit" } %>
+    <% end %>
+  </div>
 </div>

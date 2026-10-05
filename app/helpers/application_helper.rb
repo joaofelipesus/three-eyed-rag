@@ -1,42 +1,65 @@
 module ApplicationHelper
   LIST_ITEM = /\A\s*([-*+]|\d+\.)\s/
-  # an opening fence, its optional language, and anything the model wrote after it on the same line
-  OPENING_FENCE = /\A\s*```(?:([A-Za-z][\w+#.-]*)(?=\s|\z))?\s*(.*)\z/
-  CLOSING_FENCE = /\A(.*?)\s*```\s*\z/
+  FENCE = "```"
+  # the language right after an opening fence ("```ruby"), if any
+  FENCE_LANGUAGE = /\A[A-Za-z][\w+#.-]*(?=\s|\z|```)/
 
   def markdown(text)
     renderer = HighlightedCodeRenderer.new(escape_html: true)
     parser = Redcarpet::Markdown.new(renderer, fenced_code_blocks: true, tables: true, autolink: true)
 
-    parser.render(force_blank_line_before_lists(normalize_code_fences(text.to_s))).html_safe
+    body, source_paths = Note.split_sources(text.to_s)
+    html = parser.render(force_blank_line_before_lists(normalize_code_fences(body))).html_safe
+    return html if source_paths.empty?
+
+    html + render("conversations/sources", sources: source_notes(source_paths))
   end
 
   private
 
-  # LLM output often squeezes a fenced code block onto the fence lines ("```ruby puts 1```",
-  # or "```ruby puts 1" with the closing fence below), sometimes indented under a list item.
-  # Redcarpet then reads it as inline code and it never gets highlighted, so rewrite every
-  # fence onto its own unindented line, with blank lines around the block.
+  # the cited notes in citation order; a note removed from the vault since is described from its path alone
+  def source_notes(paths)
+    notes_by_path = Note.where(path: paths).index_by(&:path)
+    paths.map { |path| notes_by_path[path] || Note.new(path: path, title: File.basename(path, ".md")) }
+  end
+
+  # LLM output often squeezes a fenced code block onto other lines: code after the opening fence
+  # ("```ruby puts 1"), the closing fence after the code ("end ```"), or the opening fence after
+  # text ("- **Example**: ```ruby ..."), sometimes indented under a list item. Redcarpet then reads
+  # it as inline code, or a lone closing fence as the start of an endless block, so put every
+  # fence on its own unindented line, with blank lines around the block, and any text before an
+  # opening fence or after a closing one on lines of its own.
   def normalize_code_fences(text)
     in_fence = false
+    output = []
 
-    text.split("\n").flat_map do |line|
-      if in_fence
-        next line unless (closing = line.match(CLOSING_FENCE))
+    text.split("\n").each do |line|
+      rest = line
 
-        in_fence = false
-        [ closing[1].presence, "```", "" ].compact
-      elsif (opening = line.match(OPENING_FENCE))
-        language, rest = opening[1], opening[2]
-        closing = rest.match(CLOSING_FENCE)
-        in_fence = closing.nil?
+      while rest
+        fence_at = rest.index(FENCE)
+        unless fence_at
+          output << rest
+          break
+        end
 
-        code = closing ? closing[1] : rest
-        [ "", "```#{language}", code.presence, *("```" if closing), *("" if closing) ].compact
-      else
-        line
+        before = rest[0...fence_at].rstrip
+        after = rest[(fence_at + FENCE.length)..]
+
+        if in_fence
+          output.push(*[ before.presence, FENCE, "" ].compact)
+        else
+          language = after[FENCE_LANGUAGE].to_s
+          after = after.delete_prefix(language)
+          output.push(*[ before.strip.presence && before, "", "#{FENCE}#{language}" ].compact)
+        end
+
+        in_fence = !in_fence
+        rest = after.strip.presence
       end
-    end.join("\n")
+    end
+
+    output.join("\n")
   end
 
   # Unlike CommonMark, Redcarpet won't let a list interrupt or be interrupted by a

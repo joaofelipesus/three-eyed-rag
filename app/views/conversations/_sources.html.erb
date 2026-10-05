@@ -1,0 +1,23 @@
+<%# locals: (sources:) %>
+<%# sources: the Note records an answer was built from %>
+<%# rendered from the Sources list ApplicationHelper#markdown splits off an answer %>
+<details class="answer-sources" open>
+  <summary class="answer-sources-heading">
+    <%= lucide_icon "chevron-right", size: 14, class: "answer-sources-chevron" %>
+    Sources <span class="answer-sources-count"><%= sources.size %></span>
+  </summary>
+
+  <ul class="answer-sources-list">
+    <% sources.each do |note| %>
+      <li class="answer-source" title="<%= note.path %>">
+        <%= lucide_icon "file-text", size: 16, class: "answer-source-icon" %>
+        <div class="answer-source-text">
+          <span class="answer-source-name"><%= note.title %></span>
+          <% if note.folders.any? %>
+            <span class="answer-source-folders"><%= note.folders.join(" › ") %></span>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+</details>

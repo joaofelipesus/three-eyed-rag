@@ -3,10 +3,10 @@ require "application_system_test_case"
 class UserStartConversationTest < ApplicationSystemTestCase
   test "sending a message from the home starts a new conversation" do
     # skip Ollama: the app server runs in this process, so the stub also applies to its request
-    Note.expects(:chat).with("hello there", anything).returns("Hi! How can I help?")
+    Note.expects(:chat).with("hello there", anything, context_notes: [], context_tags: []).returns("Hi! How can I help?")
 
     visit root_path
-    fill_in placeholder: "Ask something about your notes...", with: "hello there"
+    fill_in placeholder: "Ask something about your notes... (# adds a note, @ a tag as context)", with: "hello there"
     click_button "Send"
 
     assert_selector ".chat-message-question", text: "hello there"

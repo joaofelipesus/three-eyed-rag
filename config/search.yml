@@ -12,5 +12,5 @@ test:
 
 # A local setup. See "Adapter Setup" in the ActiveSearch README for what sqlite takes
 # elsewhere -- a database adapter takes nothing, and the rest differ.
-# production:
-#   adapter: sqlite
+production:
+  adapter: sqlite
